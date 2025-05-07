@@ -15,22 +15,31 @@ const Navbar: React.FC = () => {
   };
 
   return (
-    <header className="bg-white shadow-sm">
+    <header className="bg-white shadow-sm sticky top-0 z-50">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
             <Link to="/" className="flex items-center space-x-2">
-              <Home className="h-5 w-5 text-blue-500" />
-              <span className="font-medium text-lg text-gray-900">ApartmentBooker</span>
+              <Home className="h-5 w-5 text-blue-700" />
+              <span className="font-bold text-lg text-blue-900">MASSA</span>
             </Link>
           </div>
 
           <nav className="flex items-center space-x-6">
-            <Link to="/" className="text-gray-700 hover:text-blue-600 transition duration-150">
+            <Link to="/" className="text-gray-700 hover:text-blue-600 transition duration-150 font-medium">
               Home
             </Link>
+            <Link to="/" className="text-gray-700 hover:text-blue-600 transition duration-150 font-medium">
+              Apartments
+            </Link>
+            <Link to="/" className="text-gray-700 hover:text-blue-600 transition duration-150 font-medium">
+              About
+            </Link>
+            <Link to="/" className="text-gray-700 hover:text-blue-600 transition duration-150 font-medium">
+              Contact
+            </Link>
             {isAdminLoggedIn && (
-              <Link to="/admin" className="text-gray-700 hover:text-blue-600 transition duration-150">
+              <Link to="/admin" className="text-gray-700 hover:text-blue-600 transition duration-150 font-medium">
                 Admin Dashboard
               </Link>
             )}
