@@ -21,8 +21,8 @@ export interface Booking {
   periodId: string;
   apartmentId: string;
   userName: string;
-  userEmail: string;
-  userPhone: string;
+  userEmail?: string;
+  userPhone?: string;
   bookingDate: Date;
 }
 

@@ -8,6 +8,7 @@ import { BookingProvider } from "@/context/BookingContext";
 import Index from "./pages/Index";
 import ApartmentDetails from "./pages/ApartmentDetails";
 import AdminDashboard from "./pages/AdminDashboard";
+import AdminLogin from "./pages/AdminLogin";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -23,6 +24,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/apartment/:id" element={<ApartmentDetails />} />
             <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

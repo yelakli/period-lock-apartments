@@ -1,12 +1,18 @@
 
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useBooking } from "@/context/BookingContext";
 import { Button } from "@/components/ui/button";
-import { Home, User } from "lucide-react";
+import { Home, User, LogOut } from "lucide-react";
 
 const Navbar: React.FC = () => {
-  const { userType, setUserType } = useBooking();
+  const { userType, isAdminLoggedIn, adminLogout } = useBooking();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    adminLogout();
+    navigate("/");
+  };
 
   return (
     <header className="bg-white shadow-sm">
@@ -23,7 +29,7 @@ const Navbar: React.FC = () => {
             <Link to="/" className="text-gray-700 hover:text-blue-600 transition duration-150">
               Home
             </Link>
-            {userType === "admin" && (
+            {isAdminLoggedIn && (
               <Link to="/admin" className="text-gray-700 hover:text-blue-600 transition duration-150">
                 Admin Dashboard
               </Link>
@@ -35,13 +41,27 @@ const Navbar: React.FC = () => {
               <User className="mr-1 h-3.5 w-3.5" />
               {userType === "admin" ? "Admin" : "User"}
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setUserType(userType === "admin" ? "user" : "admin")}
-            >
-              Switch to {userType === "admin" ? "User" : "Admin"}
-            </Button>
+            
+            {isAdminLoggedIn ? (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleLogout}
+                className="flex items-center"
+              >
+                <LogOut className="h-3.5 w-3.5 mr-1" />
+                Logout
+              </Button>
+            ) : (
+              <Link to="/admin/login">
+                <Button
+                  variant="outline"
+                  size="sm"
+                >
+                  Admin Login
+                </Button>
+              </Link>
+            )}
           </div>
         </div>
       </div>

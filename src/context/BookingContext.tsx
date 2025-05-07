@@ -17,9 +17,16 @@ interface BookingContextType {
   createBooking: (booking: Omit<Booking, "id" | "bookingDate">) => void;
   getApartmentBookingPeriods: (apartmentId: string) => BookingPeriod[];
   getAvailableBookingPeriods: (apartmentId: string) => BookingPeriod[];
+  isAdminLoggedIn: boolean;
+  adminLogin: (username: string, password: string) => boolean;
+  adminLogout: () => void;
 }
 
 const BookingContext = createContext<BookingContextType | undefined>(undefined);
+
+// Admin credentials
+const ADMIN_USERNAME = "admin";
+const ADMIN_PASSWORD = "admin";
 
 // Sample data
 const sampleApartments: Apartment[] = [
@@ -77,6 +84,21 @@ export const BookingProvider: React.FC<{children: ReactNode}> = ({ children }) =
   const [bookingPeriods, setBookingPeriods] = useState<BookingPeriod[]>(sampleBookingPeriods);
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [userType, setUserType] = useState<"admin" | "user">("user");
+  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState<boolean>(false);
+
+  const adminLogin = (username: string, password: string): boolean => {
+    if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+      setIsAdminLoggedIn(true);
+      setUserType("admin");
+      return true;
+    }
+    return false;
+  };
+
+  const adminLogout = (): void => {
+    setIsAdminLoggedIn(false);
+    setUserType("user");
+  };
 
   const addApartment = (apartment: Omit<Apartment, "id">) => {
     const newApartment = { ...apartment, id: uuidv4() };
@@ -145,7 +167,10 @@ export const BookingProvider: React.FC<{children: ReactNode}> = ({ children }) =
         deleteBookingPeriod,
         createBooking,
         getApartmentBookingPeriods,
-        getAvailableBookingPeriods
+        getAvailableBookingPeriods,
+        isAdminLoggedIn,
+        adminLogin,
+        adminLogout
       }}
     >
       {children}
