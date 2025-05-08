@@ -119,7 +119,7 @@ const ApartmentDetails = () => {
                       onValueChange={setSelectedPeriodId}
                     >
                       <SelectTrigger id="period" className="w-full">
-                        <SelectValue placeholder="Choose period" />
+                        <SelectValue placeholder="Choisissez votre période" />
                       </SelectTrigger>
                       <SelectContent>
                         {availablePeriods.length === 0 ? (
