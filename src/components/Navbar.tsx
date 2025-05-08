@@ -20,7 +20,7 @@ const Navbar: React.FC = () => {
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
             <Link to="/" className="flex items-center space-x-2">
-              <Home className="h-5 w-5 text-blue-500" />
+            <img className="logoMobile" id="" typeof="foaf:Image" src="https://www.soussmassa.ma/sites/all/themes/regionsm/ar-logoSticky.png" alt="CRSM logo"/>
               <span className="font-medium text-lg text-gray-900">AOSRSM</span>
             </Link>
           </div>
