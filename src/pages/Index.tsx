@@ -112,7 +112,7 @@ const Index = () => {
                       </div>
                       <Badge variant={availablePeriods.length > 0 ? "outline" : "secondary"}>
                         {availablePeriods.length > 0
-                          ? `${availablePeriods.length} Période${availablePeriods.length === 1 ? "" : "s"} Disponible`
+                          ? `${availablePeriods.length} Période${availablePeriods.length === 1 ? "" : "s"} Disponible${availablePeriods.length === 1 ? "" : "s"}`
                           : "Réservations Complètes"}
                       </Badge>
                     </CardFooter>

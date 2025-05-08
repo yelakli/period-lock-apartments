@@ -16,7 +16,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       </main>
       <footer className="bg-white border-t py-6">
         <div className="container mx-auto px-4 text-center text-gray-500">
-          <p>© {new Date().getFullYear()} Apartment Booking System. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} Association des Oeuvres Sociales des Fonctionnaires de la Région Souss Massa. All rights reserved.</p>
         </div>
       </footer>
     </div>
