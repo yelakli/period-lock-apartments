@@ -96,7 +96,7 @@ const ApartmentDetails = () => {
             </div>
             
             <div className="mb-8">
-              <h2 className="text-xl font-semibold text-gray-900 mb-3">About this place</h2>
+              <h2 className="text-xl font-semibold text-gray-900 mb-3">A propos </h2>
               <p className="text-gray-600 whitespace-pre-line">{apartment.description}</p>
             </div>
           </div>
