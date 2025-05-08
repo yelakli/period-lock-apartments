@@ -220,7 +220,7 @@ const AdminDashboard: React.FC = () => {
                     </div>
                     <div>
                       <label htmlFor="price" className="text-sm font-medium text-gray-700 mb-1 block">
-                        Price per Night ($)
+                        Price per Night (Dh)
                       </label>
                       <Input
                         id="price"
@@ -340,7 +340,7 @@ const AdminDashboard: React.FC = () => {
                                   </div>
                                   <div>
                                     <label htmlFor="edit-price" className="text-sm font-medium text-gray-700 mb-1 block">
-                                      Price per Night ($)
+                                      Price per Night (Dh)
                                     </label>
                                     <Input
                                       id="edit-price"
@@ -403,7 +403,7 @@ const AdminDashboard: React.FC = () => {
                         </div>
                         <p className="text-gray-600 mb-4 line-clamp-2">{apartment.description}</p>
                         <div className="flex justify-between">
-                          <span className="font-medium">${apartment.price} per night</span>
+                          <span className="font-medium">{apartment.price}Dh per night</span>
                           <span className="text-sm text-gray-500">
                             {getApartmentBookingPeriods(apartment.id).filter(p => !p.isBooked).length} periods available
                           </span>

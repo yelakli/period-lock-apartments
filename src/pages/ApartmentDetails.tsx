@@ -105,7 +105,7 @@ const ApartmentDetails = () => {
             <Card>
               <CardContent className="pt-6">
                 <div className="flex items-baseline justify-between mb-4">
-                  <div className="text-2xl font-semibold">${formatCurrency(apartment.price)}</div>
+                  <div className="text-2xl font-semibold">{formatCurrency(apartment.price)} Dh</div>
                   <div className="text-sm text-gray-500">per night</div>
                 </div>
                 
@@ -193,21 +193,21 @@ const ApartmentDetails = () => {
                   {selectedPeriod && (
                     <div className="border-t pt-4 mt-4">
                       <div className="flex justify-between mb-2">
-                        <span className="text-gray-600">${formatCurrency(apartment.price)} x {Math.round((new Date(selectedPeriod.endDate).getTime() - new Date(selectedPeriod.startDate).getTime()) / (1000 * 60 * 60 * 24))} nights</span>
+                        <span className="text-gray-600">{formatCurrency(apartment.price)} x {Math.round((new Date(selectedPeriod.endDate).getTime() - new Date(selectedPeriod.startDate).getTime()) / (1000 * 60 * 60 * 24))} Dh nights</span>
                         <span className="font-medium">
-                          ${formatCurrency(apartment.price * Math.round((new Date(selectedPeriod.endDate).getTime() - new Date(selectedPeriod.startDate).getTime()) / (1000 * 60 * 60 * 24)))}
+                          {formatCurrency(apartment.price * Math.round((new Date(selectedPeriod.endDate).getTime() - new Date(selectedPeriod.startDate).getTime()) / (1000 * 60 * 60 * 24)))} Dh
                         </span>
                       </div>
                       <div className="flex justify-between mb-2">
                         <span className="text-gray-600">Service fee</span>
-                        <span className="font-medium">${formatCurrency(apartment.price * 0.1)}</span>
+                        <span className="font-medium">{formatCurrency(apartment.price * 0.1)} Dh</span>
                       </div>
                       <div className="flex justify-between pt-3 border-t font-semibold">
                         <span>Total</span>
                         <span>
-                          ${formatCurrency(
+                          {formatCurrency(
                             apartment.price * Math.round((new Date(selectedPeriod.endDate).getTime() - new Date(selectedPeriod.startDate).getTime()) / (1000 * 60 * 60 * 24)) + apartment.price * 0.1
-                          )}
+                          )} Dh
                         </span>
                       </div>
                     </div>
