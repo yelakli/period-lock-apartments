@@ -26,12 +26,21 @@ const Index = () => {
       <div className="max-w-6xl mx-auto">
         <div className="mb-8 text-center">
           <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-            Find Your Perfect Stay
+            Opération Estivage 2025
           </h1>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Browse our selection of apartments and find the perfect place for your next trip.
-            Book with confidence and enjoy your stay.
+            Association des Oeuvres Sociales des Fonctionnaires de la Région Souss Massa
           </p>
+          <p className="text text-gray-600 max-w-2xl mx-auto">La saison estivale de l'année 2024 commence du 22 juin au 15 septembre 2024.</p>
+          <p className="text text-gray-600 max-w-2xl mx-auto">Le pourcentage de contribution du participant au processus de camping d'été a été déterminé par :</p>
+          <p className="text text-gray-600 max-w-2xl mx-auto">- 25 % pour les salariés classés aux grades 9 et inférieurs, avec cotisation de l'association plafonnée à 700Dh par jour.</p>
+          <p className="text text-gray-600 max-w-2xl mx-auto">- 35 % pour les salariés classés aux grades 10 et supérieurs, avec cotisation de l'association plafonnée à 600Dh par jour.</p>
+
+          <p className="text text-gray-600 max-w-2xl mx-auto">Très important:</p>
+          <p className="text text-gray-600 max-w-2xl mx-auto">- Toute réservation peut être de 4 à 5 Jours consécutifs (non séparés) pour Tafoult, Amlal, Essayadine, Essaouira, Marrakech et Martil.</p>
+          <p className="text text-gray-600 max-w-2xl mx-auto">- Les réservations à "CLUB EVASION" et "Résidence Beau Rivage" ne peuvent pas être inférieure à 5 jours consécutifs.</p>
+          <p className="text text-gray-600 max-w-2xl mx-auto">- Il n'est pas possible de réserver plus d'un appartement.</p>
+          <p className="text text-gray-600 max-w-2xl mx-auto">- La réservation n’est considérée comme définitive que si la contribution du participant est intégralement réglée.</p>
         </div>
 
         <div className="mb-8">
@@ -99,12 +108,12 @@ const Index = () => {
                     </CardContent>
                     <CardFooter className="flex items-center justify-between border-t pt-4">
                       <div className="text-lg font-semibold text-gray-900">
-                        ${formatCurrency(apartment.price)} <span className="text-sm font-normal text-gray-500">/ night</span>
+                        {formatCurrency(apartment.price)} <span className="text-sm font-normal text-gray-500"> Dh/ nuitée</span>
                       </div>
                       <Badge variant={availablePeriods.length > 0 ? "outline" : "secondary"}>
                         {availablePeriods.length > 0
-                          ? `${availablePeriods.length} period${availablePeriods.length === 1 ? "" : "s"} available`
-                          : "Fully booked"}
+                          ? `${availablePeriods.length} Période${availablePeriods.length === 1 ? "" : "s"} Disponible`
+                          : "Réservations Complètes"}
                       </Badge>
                     </CardFooter>
                   </Card>

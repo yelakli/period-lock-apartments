@@ -27,7 +27,7 @@ const Navbar: React.FC = () => {
 
           <nav className="flex items-center space-x-6">
             <Link to="/" className="text-gray-700 hover:text-blue-600 transition duration-150">
-              Home
+              Accueil
             </Link>
             {isAdminLoggedIn && (
               <Link to="/admin" className="text-gray-700 hover:text-blue-600 transition duration-150">
