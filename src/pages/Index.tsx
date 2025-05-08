@@ -31,10 +31,10 @@ const Index = () => {
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
             Association des Oeuvres Sociales des Fonctionnaires de la Région Souss Massa
           </p>
-          <p className="text text-gray-600 max-w-2xl mx-auto">La saison estivale de l'année 2024 commence du 22 juin au 15 septembre 2024.</p>
-          <p className="text text-gray-600 max-w-2xl mx-auto">Le pourcentage de contribution du participant au processus de camping d'été a été déterminé par :</p>
-          <p className="text text-gray-600 max-w-2xl mx-auto">- 25 % pour les salariés classés aux grades 9 et inférieurs, avec cotisation de l'association plafonnée à 700Dh par jour.</p>
-          <p className="text text-gray-600 max-w-2xl mx-auto">- 35 % pour les salariés classés aux grades 10 et supérieurs, avec cotisation de l'association plafonnée à 600Dh par jour.</p>
+          <p className="text">La saison estivale de l'année 2024 commence du 22 juin au 15 septembre 2024.</p>
+          <p className="text">Le pourcentage de contribution du participant au processus de camping d'été a été déterminé par :</p>
+          <p className="text">- 25 % pour les salariés classés aux grades 9 et inférieurs, avec cotisation de l'association plafonnée à 700Dh par jour.</p>
+          <p className="text">- 35 % pour les salariés classés aux grades 10 et supérieurs, avec cotisation de l'association plafonnée à 600Dh par jour.</p>
 
           <p className="text text-gray-600 max-w-2xl mx-auto">Très important:</p>
           <p className="text text-gray-600 max-w-2xl mx-auto">- Toute réservation peut être de 4 à 5 Jours consécutifs (non séparés) pour Tafoult, Amlal, Essayadine, Essaouira, Marrakech et Martil.</p>
