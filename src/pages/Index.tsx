@@ -2,15 +2,17 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useBooking } from "@/context/BookingContext";
+import { useLanguage } from "@/context/LanguageContext";
 import Layout from "@/components/Layout";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { MapPin } from "lucide-react";
-import { formatCurrency } from "@/utils/format";
+import { formatAsCurrency } from "@/utils/format";
 
 const Index = () => {
   const { apartments, getAvailableBookingPeriods } = useBooking();
+  const { translate } = useLanguage();
   const [searchTerm, setSearchTerm] = useState("");
 
   const filteredApartments = apartments.filter(
@@ -25,18 +27,17 @@ const Index = () => {
       <div className="max-w-6xl mx-auto">
         <div className="mb-8 text-center">
           <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-            Find Your Perfect Stay
+            {translate("find_your_perfect_stay")}
           </h1>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Browse our selection of apartments and find the perfect place for your next trip.
-            Book with confidence and enjoy your stay.
+            {translate("browse_selection")}
           </p>
         </div>
 
         <div className="mb-8">
           <Input
             type="text"
-            placeholder="Search apartments by name, location, or description..."
+            placeholder={translate("search_placeholder")}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="max-w-lg mx-auto"
@@ -45,7 +46,7 @@ const Index = () => {
 
         {filteredApartments.length === 0 ? (
           <div className="text-center py-8">
-            <p className="text-gray-500">No apartments found matching your search.</p>
+            <p className="text-gray-500">{translate("no_apartments")}</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -78,12 +79,14 @@ const Index = () => {
                     </CardContent>
                     <CardFooter className="flex items-center justify-between border-t pt-4">
                       <div className="text-lg font-semibold text-gray-900">
-                        ${formatCurrency(apartment.price)} <span className="text-sm font-normal text-gray-500">/ night</span>
+                        {formatAsCurrency(apartment.price)} <span className="text-sm font-normal text-gray-500">/ {translate("night")}</span>
                       </div>
                       <Badge variant={availablePeriods.length > 0 ? "outline" : "secondary"}>
                         {availablePeriods.length > 0
-                          ? `${availablePeriods.length} period${availablePeriods.length === 1 ? "" : "s"} available`
-                          : "Fully booked"}
+                          ? `${availablePeriods.length} ${availablePeriods.length === 1 
+                              ? translate("periods_available") 
+                              : translate("periods_available_plural")}`
+                          : translate("fully_booked")}
                       </Badge>
                     </CardFooter>
                   </Card>
