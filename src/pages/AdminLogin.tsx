@@ -3,7 +3,6 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { useBooking } from "@/context/BookingContext";
-import { useLanguage } from "@/context/LanguageContext";
 import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,7 +19,6 @@ interface LoginFormData {
 const AdminLogin = () => {
   const navigate = useNavigate();
   const { adminLogin, isAdminLoggedIn } = useBooking();
-  const { translate } = useLanguage();
   const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   const form = useForm<LoginFormData>({
@@ -45,10 +43,10 @@ const AdminLogin = () => {
       const success = adminLogin(data.username, data.password);
       
       if (success) {
-        toast.success(translate("login_success"));
+        toast.success("Login successful!");
         navigate("/admin");
       } else {
-        toast.error(translate("login_error"));
+        toast.error("Invalid username or password");
       }
       
       setIsLoggingIn(false);
@@ -60,9 +58,9 @@ const AdminLogin = () => {
       <div className="flex justify-center items-center py-12">
         <Card className="w-full max-w-md">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl font-bold">{translate("admin_title")}</CardTitle>
+            <CardTitle className="text-2xl font-bold">Admin Login</CardTitle>
             <CardDescription>
-              {translate("admin_description")}
+              Enter your credentials to access the admin dashboard
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -73,12 +71,12 @@ const AdminLogin = () => {
                   name="username"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{translate("username")}</FormLabel>
+                      <FormLabel>Username</FormLabel>
                       <FormControl>
                         <div className="relative">
                           <User className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
                           <Input
-                            placeholder={translate("username_placeholder")}
+                            placeholder="Enter your username"
                             className="pl-9"
                             {...field}
                           />
@@ -93,13 +91,13 @@ const AdminLogin = () => {
                   name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{translate("password")}</FormLabel>
+                      <FormLabel>Password</FormLabel>
                       <FormControl>
                         <div className="relative">
                           <Lock className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
                           <Input
                             type="password"
-                            placeholder={translate("password_placeholder")}
+                            placeholder="Enter your password"
                             className="pl-9"
                             {...field}
                           />
@@ -114,14 +112,14 @@ const AdminLogin = () => {
                   className="w-full"
                   disabled={isLoggingIn}
                 >
-                  {isLoggingIn ? translate("logging_in") : translate("login")}
+                  {isLoggingIn ? "Logging in..." : "Login"}
                 </Button>
               </form>
             </Form>
           </CardContent>
           <CardFooter className="flex justify-center border-t pt-4">
             <p className="text-sm text-gray-500">
-              {translate("default_credentials")}
+              Default credentials: username: admin, password: admin
             </p>
           </CardFooter>
         </Card>

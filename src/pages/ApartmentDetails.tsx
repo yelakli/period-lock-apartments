@@ -3,7 +3,6 @@ import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { useBooking } from "@/context/BookingContext";
-import { useLanguage } from "@/context/LanguageContext";
 import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,13 +17,12 @@ import {
 } from "@/components/ui/select";
 import { MapPin, Calendar } from "lucide-react";
 import { format } from "date-fns";
-import { formatAsCurrency } from "@/utils/format";
+import { formatCurrency } from "@/utils/format";
 
 const ApartmentDetails = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { apartments, getAvailableBookingPeriods, createBooking } = useBooking();
-  const { translate } = useLanguage();
   
   const apartment = apartments.find((a) => a.id === id);
   const availablePeriods = getAvailableBookingPeriods(id || "");
@@ -40,7 +38,7 @@ const ApartmentDetails = () => {
     e.preventDefault();
     
     if (!selectedPeriodId || !userName || !userEmail || !userPhone) {
-      toast.error(translate("fill_all_fields"));
+      toast.error("Please fill in all fields");
       return;
     }
     
@@ -52,7 +50,7 @@ const ApartmentDetails = () => {
       userPhone
     });
     
-    toast.success(translate("booking_success"));
+    toast.success("Booking successful!");
     navigate("/");
   };
   
@@ -61,7 +59,7 @@ const ApartmentDetails = () => {
       <Layout>
         <div className="text-center py-12">
           <h2 className="text-2xl font-medium text-gray-900 mb-4">Apartment not found</h2>
-          <Button onClick={() => navigate("/")}>{translate("home")}</Button>
+          <Button onClick={() => navigate("/")}>Return to Home</Button>
         </div>
       </Layout>
     );
@@ -98,7 +96,7 @@ const ApartmentDetails = () => {
             </div>
             
             <div className="mb-8">
-              <h2 className="text-xl font-semibold text-gray-900 mb-3">{translate("about_this_place")}</h2>
+              <h2 className="text-xl font-semibold text-gray-900 mb-3">About this place</h2>
               <p className="text-gray-600 whitespace-pre-line">{apartment.description}</p>
             </div>
           </div>
@@ -107,26 +105,26 @@ const ApartmentDetails = () => {
             <Card>
               <CardContent className="pt-6">
                 <div className="flex items-baseline justify-between mb-4">
-                  <div className="text-2xl font-semibold">{formatAsCurrency(apartment.price)}</div>
-                  <div className="text-sm text-gray-500">{translate("per_night")}</div>
+                  <div className="text-2xl font-semibold">${formatCurrency(apartment.price)}</div>
+                  <div className="text-sm text-gray-500">per night</div>
                 </div>
                 
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="space-y-2">
                     <label htmlFor="period" className="text-sm font-medium text-gray-700">
-                      {translate("select_period")}
+                      Select Available Period
                     </label>
                     <Select
                       value={selectedPeriodId}
                       onValueChange={setSelectedPeriodId}
                     >
                       <SelectTrigger id="period" className="w-full">
-                        <SelectValue placeholder={translate("choose_period")} />
+                        <SelectValue placeholder="Choose period" />
                       </SelectTrigger>
                       <SelectContent>
                         {availablePeriods.length === 0 ? (
                           <SelectItem value="none" disabled>
-                            {translate("no_periods")}
+                            No periods available
                           </SelectItem>
                         ) : (
                           availablePeriods.map((period) => (
@@ -147,7 +145,7 @@ const ApartmentDetails = () => {
                           {format(new Date(selectedPeriod.startDate), "MMMM dd")} - {format(new Date(selectedPeriod.endDate), "MMMM dd, yyyy")}
                         </p>
                         <p className="text-sm text-blue-600">
-                          {Math.round((new Date(selectedPeriod.endDate).getTime() - new Date(selectedPeriod.startDate).getTime()) / (1000 * 60 * 60 * 24))} {translate("nights")}
+                          {Math.round((new Date(selectedPeriod.endDate).getTime() - new Date(selectedPeriod.startDate).getTime()) / (1000 * 60 * 60 * 24))} nights
                         </p>
                       </div>
                     </div>
@@ -156,38 +154,38 @@ const ApartmentDetails = () => {
                   <div className="space-y-4 pt-2">
                     <div>
                       <label htmlFor="name" className="text-sm font-medium text-gray-700">
-                        {translate("full_name")}
+                        Full Name
                       </label>
                       <Input
                         id="name"
                         value={userName}
                         onChange={(e) => setUserName(e.target.value)}
-                        placeholder={translate("name_placeholder")}
+                        placeholder="Enter your full name"
                       />
                     </div>
                     
                     <div>
                       <label htmlFor="email" className="text-sm font-medium text-gray-700">
-                        {translate("email")}
+                        Email
                       </label>
                       <Input
                         id="email"
                         type="email"
                         value={userEmail}
                         onChange={(e) => setUserEmail(e.target.value)}
-                        placeholder={translate("email_placeholder")}
+                        placeholder="Enter your email address"
                       />
                     </div>
                     
                     <div>
                       <label htmlFor="phone" className="text-sm font-medium text-gray-700">
-                        {translate("phone")}
+                        Phone Number
                       </label>
                       <Input
                         id="phone"
                         value={userPhone}
                         onChange={(e) => setUserPhone(e.target.value)}
-                        placeholder={translate("phone_placeholder")}
+                        placeholder="Enter your phone number"
                       />
                     </div>
                   </div>
@@ -195,21 +193,19 @@ const ApartmentDetails = () => {
                   {selectedPeriod && (
                     <div className="border-t pt-4 mt-4">
                       <div className="flex justify-between mb-2">
-                        <span className="text-gray-600">
-                          {formatAsCurrency(apartment.price)} x {Math.round((new Date(selectedPeriod.endDate).getTime() - new Date(selectedPeriod.startDate).getTime()) / (1000 * 60 * 60 * 24))} {translate("nights")}
-                        </span>
+                        <span className="text-gray-600">${formatCurrency(apartment.price)} x {Math.round((new Date(selectedPeriod.endDate).getTime() - new Date(selectedPeriod.startDate).getTime()) / (1000 * 60 * 60 * 24))} nights</span>
                         <span className="font-medium">
-                          {formatAsCurrency(apartment.price * Math.round((new Date(selectedPeriod.endDate).getTime() - new Date(selectedPeriod.startDate).getTime()) / (1000 * 60 * 60 * 24)))}
+                          ${formatCurrency(apartment.price * Math.round((new Date(selectedPeriod.endDate).getTime() - new Date(selectedPeriod.startDate).getTime()) / (1000 * 60 * 60 * 24)))}
                         </span>
                       </div>
                       <div className="flex justify-between mb-2">
-                        <span className="text-gray-600">{translate("service_fee")}</span>
-                        <span className="font-medium">{formatAsCurrency(apartment.price * 0.1)}</span>
+                        <span className="text-gray-600">Service fee</span>
+                        <span className="font-medium">${formatCurrency(apartment.price * 0.1)}</span>
                       </div>
                       <div className="flex justify-between pt-3 border-t font-semibold">
-                        <span>{translate("total")}</span>
+                        <span>Total</span>
                         <span>
-                          {formatAsCurrency(
+                          ${formatCurrency(
                             apartment.price * Math.round((new Date(selectedPeriod.endDate).getTime() - new Date(selectedPeriod.startDate).getTime()) / (1000 * 60 * 60 * 24)) + apartment.price * 0.1
                           )}
                         </span>
@@ -222,7 +218,7 @@ const ApartmentDetails = () => {
                     className="w-full"
                     disabled={!selectedPeriodId || !userName || !userEmail || !userPhone}
                   >
-                    {translate("reserve")}
+                    Reserve
                   </Button>
                 </form>
               </CardContent>
