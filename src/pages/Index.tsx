@@ -43,15 +43,6 @@ const Index = () => {
           <p className="text-left">- La réservation n’est considérée comme définitive que si la contribution du participant est intégralement réglée.</p>
         </div>
 
-        <div className="mb-8">
-          <Input
-            type="text"
-            placeholder="Search apartments by name, location, or description..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="max-w-lg mx-auto"
-          />
-        </div>
 
         {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
