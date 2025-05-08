@@ -106,7 +106,7 @@ const ApartmentDetails = () => {
               <CardContent className="pt-6">
                 <div className="flex items-baseline justify-between mb-4">
                   <div className="text-2xl font-semibold">{formatCurrency(apartment.price)} Dh</div>
-                  <div className="text-sm text-gray-500">per night</div>
+                  <div className="text-sm text-gray-500">par nuitée</div>
                 </div>
                 
                 <form onSubmit={handleSubmit} className="space-y-4">
@@ -145,7 +145,7 @@ const ApartmentDetails = () => {
                           {format(new Date(selectedPeriod.startDate), "MMMM dd")} - {format(new Date(selectedPeriod.endDate), "MMMM dd, yyyy")}
                         </p>
                         <p className="text-sm text-blue-600">
-                          {Math.round((new Date(selectedPeriod.endDate).getTime() - new Date(selectedPeriod.startDate).getTime()) / (1000 * 60 * 60 * 24))} nights
+                          {Math.round((new Date(selectedPeriod.endDate).getTime() - new Date(selectedPeriod.startDate).getTime()) / (1000 * 60 * 60 * 24))} nuitées
                         </p>
                       </div>
                     </div>
@@ -179,7 +179,7 @@ const ApartmentDetails = () => {
                     
                     <div>
                       <label htmlFor="phone" className="text-sm font-medium text-gray-700">
-                        Numéro de Téléphone (facultatif)
+                        Numéro de Téléphone
                       </label>
                       <Input
                         id="phone"
