@@ -193,20 +193,17 @@ const ApartmentDetails = () => {
                   {selectedPeriod && (
                     <div className="border-t pt-4 mt-4">
                       <div className="flex justify-between mb-2">
-                        <span className="text-gray-600">{formatCurrency(apartment.price)} x {Math.round((new Date(selectedPeriod.endDate).getTime() - new Date(selectedPeriod.startDate).getTime()) / (1000 * 60 * 60 * 24))} Dh nuitées</span>
+                        <span className="text-gray-600">{formatCurrency(apartment.price)} Dh x {Math.round((new Date(selectedPeriod.endDate).getTime() - new Date(selectedPeriod.startDate).getTime()) / (1000 * 60 * 60 * 24))}  nuitées</span>
                         <span className="font-medium">
                           {formatCurrency(apartment.price * Math.round((new Date(selectedPeriod.endDate).getTime() - new Date(selectedPeriod.startDate).getTime()) / (1000 * 60 * 60 * 24)))} Dh
                         </span>
                       </div>
-                      <div className="flex justify-between mb-2">
-                        <span className="text-gray-600">Service fee</span>
-                        <span className="font-medium">{formatCurrency(apartment.price * 0.1)} Dh</span>
-                      </div>
+                     
                       <div className="flex justify-between pt-3 border-t font-semibold">
                         <span>Total</span>
                         <span>
                           {formatCurrency(
-                            apartment.price * Math.round((new Date(selectedPeriod.endDate).getTime() - new Date(selectedPeriod.startDate).getTime()) / (1000 * 60 * 60 * 24)) + apartment.price * 0.1
+                            apartment.price * Math.round((new Date(selectedPeriod.endDate).getTime() - new Date(selectedPeriod.startDate).getTime()) / (1000 * 60 * 60 * 24))
                           )} Dh
                         </span>
                       </div>
