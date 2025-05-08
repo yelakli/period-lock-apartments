@@ -120,7 +120,6 @@ const AdminLogin = () => {
           </CardContent>
           <CardFooter className="flex justify-center border-t pt-4">
             <p className="text-sm text-gray-500">
-              Default credentials: email: admin@example.com, password: admin
             </p>
           </CardFooter>
         </Card>
