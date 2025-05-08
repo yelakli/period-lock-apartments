@@ -54,6 +54,7 @@ export const BookingProvider: React.FC<{children: ReactNode}> = ({ children }) =
   // Fetch apartments from Supabase
   const fetchApartments = async () => {
     try {
+      setIsLoading(true);
       const { data, error } = await supabase
         .from('apartments')
         .select('*');
@@ -158,6 +159,13 @@ export const BookingProvider: React.FC<{children: ReactNode}> = ({ children }) =
 
   const addApartment = async (apartment: Omit<Apartment, "id">) => {
     try {
+      // Make sure we have a session before attempting to add/update data
+      const { data: sessionData } = await supabase.auth.getSession();
+      if (!sessionData.session) {
+        toast.error("You must be logged in as an admin to perform this action");
+        return;
+      }
+
       const { data, error } = await supabase
         .from('apartments')
         .insert({
@@ -169,7 +177,10 @@ export const BookingProvider: React.FC<{children: ReactNode}> = ({ children }) =
         })
         .select();
       
-      if (error) throw error;
+      if (error) {
+        console.error("Error details:", error);
+        throw error;
+      }
       
       if (data) {
         const newApartment = {
@@ -177,6 +188,7 @@ export const BookingProvider: React.FC<{children: ReactNode}> = ({ children }) =
           price: Number(data[0].price)
         };
         setApartments([...apartments, newApartment]);
+        toast.success("Apartment added successfully!");
       }
     } catch (error) {
       console.error("Error adding apartment:", error);
@@ -186,6 +198,13 @@ export const BookingProvider: React.FC<{children: ReactNode}> = ({ children }) =
 
   const updateApartment = async (apartment: Apartment) => {
     try {
+      // Make sure we have a session before attempting to add/update data
+      const { data: sessionData } = await supabase.auth.getSession();
+      if (!sessionData.session) {
+        toast.error("You must be logged in as an admin to perform this action");
+        return;
+      }
+
       const { error } = await supabase
         .from('apartments')
         .update({
@@ -197,13 +216,17 @@ export const BookingProvider: React.FC<{children: ReactNode}> = ({ children }) =
         })
         .eq('id', apartment.id);
       
-      if (error) throw error;
+      if (error) {
+        console.error("Error details:", error);
+        throw error;
+      }
       
       // Update local state
       setApartments(apartments.map(apt => 
         apt.id === apartment.id ? { ...apartment, price: Number(apartment.price) } : apt
       ));
       
+      toast.success("Apartment updated successfully!");
     } catch (error) {
       console.error("Error updating apartment:", error);
       toast.error("Failed to update apartment. Please try again.");
@@ -212,18 +235,29 @@ export const BookingProvider: React.FC<{children: ReactNode}> = ({ children }) =
 
   const deleteApartment = async (id: string) => {
     try {
+      // Make sure we have a session before attempting to add/update data
+      const { data: sessionData } = await supabase.auth.getSession();
+      if (!sessionData.session) {
+        toast.error("You must be logged in as an admin to perform this action");
+        return;
+      }
+
       const { error } = await supabase
         .from('apartments')
         .delete()
         .eq('id', id);
       
-      if (error) throw error;
+      if (error) {
+        console.error("Error details:", error);
+        throw error;
+      }
       
       // Update local state
       setApartments(apartments.filter(apt => apt.id !== id));
       setBookingPeriods(bookingPeriods.filter(period => period.apartmentId !== id));
       setBookings(bookings.filter(booking => booking.apartmentId !== id));
       
+      toast.success("Apartment deleted successfully!");
     } catch (error) {
       console.error("Error deleting apartment:", error);
       toast.error("Failed to delete apartment. Please try again.");
@@ -232,6 +266,13 @@ export const BookingProvider: React.FC<{children: ReactNode}> = ({ children }) =
 
   const addBookingPeriod = async (period: Omit<BookingPeriod, "id">) => {
     try {
+      // Make sure we have a session before attempting to add/update data
+      const { data: sessionData } = await supabase.auth.getSession();
+      if (!sessionData.session) {
+        toast.error("You must be logged in as an admin to perform this action");
+        return;
+      }
+
       const { data, error } = await supabase
         .from('booking_periods')
         .insert({
@@ -242,7 +283,10 @@ export const BookingProvider: React.FC<{children: ReactNode}> = ({ children }) =
         })
         .select();
       
-      if (error) throw error;
+      if (error) {
+        console.error("Error details:", error);
+        throw error;
+      }
       
       if (data) {
         const newPeriod = {
@@ -253,6 +297,7 @@ export const BookingProvider: React.FC<{children: ReactNode}> = ({ children }) =
           isBooked: data[0].is_booked
         };
         setBookingPeriods([...bookingPeriods, newPeriod]);
+        toast.success("Booking period added successfully!");
       }
     } catch (error) {
       console.error("Error adding booking period:", error);
@@ -262,17 +307,28 @@ export const BookingProvider: React.FC<{children: ReactNode}> = ({ children }) =
 
   const deleteBookingPeriod = async (id: string) => {
     try {
+      // Make sure we have a session before attempting to add/update data
+      const { data: sessionData } = await supabase.auth.getSession();
+      if (!sessionData.session) {
+        toast.error("You must be logged in as an admin to perform this action");
+        return;
+      }
+
       const { error } = await supabase
         .from('booking_periods')
         .delete()
         .eq('id', id);
       
-      if (error) throw error;
+      if (error) {
+        console.error("Error details:", error);
+        throw error;
+      }
       
       // Update local state
       setBookingPeriods(bookingPeriods.filter(period => period.id !== id));
       setBookings(bookings.filter(booking => booking.periodId !== id));
       
+      toast.success("Booking period deleted successfully!");
     } catch (error) {
       console.error("Error deleting booking period:", error);
       toast.error("Failed to delete booking period. Please try again.");
@@ -296,10 +352,15 @@ export const BookingProvider: React.FC<{children: ReactNode}> = ({ children }) =
       if (error) throw error;
       
       // Mark period as booked
-      await supabase
+      const periodUpdateResult = await supabase
         .from('booking_periods')
         .update({ is_booked: true })
         .eq('id', booking.periodId);
+        
+      if (periodUpdateResult.error) {
+        console.error("Error updating period:", periodUpdateResult.error);
+        throw periodUpdateResult.error;
+      }
       
       // Update local state
       setBookingPeriods(
@@ -321,6 +382,7 @@ export const BookingProvider: React.FC<{children: ReactNode}> = ({ children }) =
           bookingDate: new Date(data[0].booking_date)
         };
         setBookings([...bookings, newBooking]);
+        toast.success("Booking created successfully!");
       }
     } catch (error) {
       console.error("Error creating booking:", error);
