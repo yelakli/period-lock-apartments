@@ -9,16 +9,144 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      apartments: {
+        Row: {
+          description: string
+          id: string
+          images: string[] | null
+          location: string
+          name: string
+          price: number
+        }
+        Insert: {
+          description: string
+          id?: string
+          images?: string[] | null
+          location: string
+          name: string
+          price: number
+        }
+        Update: {
+          description?: string
+          id?: string
+          images?: string[] | null
+          location?: string
+          name?: string
+          price?: number
+        }
+        Relationships: []
+      }
+      booking_periods: {
+        Row: {
+          apartment_id: string
+          end_date: string
+          id: string
+          is_booked: boolean
+          start_date: string
+        }
+        Insert: {
+          apartment_id: string
+          end_date: string
+          id?: string
+          is_booked?: boolean
+          start_date: string
+        }
+        Update: {
+          apartment_id?: string
+          end_date?: string
+          id?: string
+          is_booked?: boolean
+          start_date?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "booking_periods_apartment_id_fkey"
+            columns: ["apartment_id"]
+            isOneToOne: false
+            referencedRelation: "apartments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bookings: {
+        Row: {
+          apartment_id: string
+          booking_date: string
+          id: string
+          period_id: string
+          user_email: string | null
+          user_name: string
+          user_phone: string | null
+        }
+        Insert: {
+          apartment_id: string
+          booking_date?: string
+          id?: string
+          period_id: string
+          user_email?: string | null
+          user_name: string
+          user_phone?: string | null
+        }
+        Update: {
+          apartment_id?: string
+          booking_date?: string
+          id?: string
+          period_id?: string
+          user_email?: string | null
+          user_name?: string
+          user_phone?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bookings_apartment_id_fkey"
+            columns: ["apartment_id"]
+            isOneToOne: false
+            referencedRelation: "apartments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookings_period_id_fkey"
+            columns: ["period_id"]
+            isOneToOne: false
+            referencedRelation: "booking_periods"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      users: {
+        Row: {
+          created_at: string | null
+          id: string
+          role: Database["public"]["Enums"]["user_role"]
+        }
+        Insert: {
+          created_at?: string | null
+          id: string
+          role?: Database["public"]["Enums"]["user_role"]
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["user_role"]
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      create_sample_booking_periods: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      create_temp_admin_user: {
+        Args: { admin_email: string; admin_password: string }
+        Returns: string
+      }
     }
     Enums: {
-      [_ in never]: never
+      user_role: "admin" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -133,6 +261,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      user_role: ["admin", "user"],
+    },
   },
 } as const

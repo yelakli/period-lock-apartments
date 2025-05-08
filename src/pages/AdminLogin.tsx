@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { useBooking } from "@/context/BookingContext";
@@ -12,7 +12,7 @@ import { useForm } from "react-hook-form";
 import { Lock, User } from "lucide-react";
 
 interface LoginFormData {
-  username: string;
+  email: string;
   password: string;
 }
 
@@ -23,34 +23,35 @@ const AdminLogin = () => {
 
   const form = useForm<LoginFormData>({
     defaultValues: {
-      username: "",
+      email: "",
       password: ""
     }
   });
 
   // Redirect if already logged in
-  React.useEffect(() => {
+  useEffect(() => {
     if (isAdminLoggedIn) {
       navigate("/admin");
     }
   }, [isAdminLoggedIn, navigate]);
 
-  const onSubmit = (data: LoginFormData) => {
+  const onSubmit = async (data: LoginFormData) => {
     setIsLoggingIn(true);
-    
-    // Simulate a network request
-    setTimeout(() => {
-      const success = adminLogin(data.username, data.password);
+    try {
+      const success = await adminLogin(data.email, data.password);
       
       if (success) {
         toast.success("Login successful!");
         navigate("/admin");
       } else {
-        toast.error("Invalid username or password");
+        toast.error("Invalid email or password");
       }
-      
+    } catch (error) {
+      console.error("Login error:", error);
+      toast.error("An error occurred during login");
+    } finally {
       setIsLoggingIn(false);
-    }, 500);
+    }
   };
 
   return (
@@ -68,15 +69,15 @@ const AdminLogin = () => {
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                 <FormField
                   control={form.control}
-                  name="username"
+                  name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Username</FormLabel>
+                      <FormLabel>Email</FormLabel>
                       <FormControl>
                         <div className="relative">
                           <User className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
                           <Input
-                            placeholder="Enter your username"
+                            placeholder="Enter your email"
                             className="pl-9"
                             {...field}
                           />
@@ -119,7 +120,7 @@ const AdminLogin = () => {
           </CardContent>
           <CardFooter className="flex justify-center border-t pt-4">
             <p className="text-sm text-gray-500">
-              Default credentials: username: admin, password: admin
+              Default credentials: email: admin@example.com, password: admin
             </p>
           </CardFooter>
         </Card>

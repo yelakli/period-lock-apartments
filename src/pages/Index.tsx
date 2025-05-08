@@ -8,9 +8,10 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { MapPin } from "lucide-react";
 import { formatCurrency } from "@/utils/format";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const Index = () => {
-  const { apartments, getAvailableBookingPeriods } = useBooking();
+  const { apartments, getAvailableBookingPeriods, isLoading } = useBooking();
   const [searchTerm, setSearchTerm] = useState("");
 
   const filteredApartments = apartments.filter(
@@ -43,7 +44,27 @@ const Index = () => {
           />
         </div>
 
-        {filteredApartments.length === 0 ? (
+        {isLoading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[...Array(3)].map((_, index) => (
+              <Card key={index} className="overflow-hidden h-full">
+                <div className="aspect-video relative overflow-hidden bg-gray-100">
+                  <Skeleton className="w-full h-full" />
+                </div>
+                <CardContent className="pt-4">
+                  <Skeleton className="h-6 w-3/4 mb-2" />
+                  <Skeleton className="h-4 w-1/2 mb-3" />
+                  <Skeleton className="h-4 w-full mb-1" />
+                  <Skeleton className="h-4 w-2/3" />
+                </CardContent>
+                <CardFooter className="flex items-center justify-between border-t pt-4">
+                  <Skeleton className="h-6 w-20" />
+                  <Skeleton className="h-6 w-28" />
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
+        ) : filteredApartments.length === 0 ? (
           <div className="text-center py-8">
             <p className="text-gray-500">No apartments found matching your search.</p>
           </div>

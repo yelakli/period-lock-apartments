@@ -1,7 +1,8 @@
 
-import React, { createContext, useState, useContext, ReactNode } from "react";
+import React, { createContext, useState, useContext, ReactNode, useEffect } from "react";
 import { Apartment, BookingPeriod, Booking } from "@/types";
-import { v4 as uuidv4 } from "uuid";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 interface BookingContextType {
   apartments: Apartment[];
@@ -9,139 +10,322 @@ interface BookingContextType {
   bookings: Booking[];
   userType: "admin" | "user";
   setUserType: (type: "admin" | "user") => void;
-  addApartment: (apartment: Omit<Apartment, "id">) => void;
-  updateApartment: (apartment: Apartment) => void;
-  deleteApartment: (id: string) => void;
-  addBookingPeriod: (period: Omit<BookingPeriod, "id">) => void;
-  deleteBookingPeriod: (id: string) => void;
-  createBooking: (booking: Omit<Booking, "id" | "bookingDate">) => void;
+  addApartment: (apartment: Omit<Apartment, "id">) => Promise<void>;
+  updateApartment: (apartment: Apartment) => Promise<void>;
+  deleteApartment: (id: string) => Promise<void>;
+  addBookingPeriod: (period: Omit<BookingPeriod, "id">) => Promise<void>;
+  deleteBookingPeriod: (id: string) => Promise<void>;
+  createBooking: (booking: Omit<Booking, "id" | "bookingDate">) => Promise<void>;
   getApartmentBookingPeriods: (apartmentId: string) => BookingPeriod[];
   getAvailableBookingPeriods: (apartmentId: string) => BookingPeriod[];
   isAdminLoggedIn: boolean;
-  adminLogin: (username: string, password: string) => boolean;
-  adminLogout: () => void;
+  adminLogin: (username: string, password: string) => Promise<boolean>;
+  adminLogout: () => Promise<void>;
+  isLoading: boolean;
 }
 
 const BookingContext = createContext<BookingContextType | undefined>(undefined);
 
-// Admin credentials
-const ADMIN_USERNAME = "admin";
-const ADMIN_PASSWORD = "admin";
-
-// Sample data
-const sampleApartments: Apartment[] = [
-  {
-    id: "1",
-    name: "Luxury Downtown Loft",
-    location: "123 Main St, Downtown",
-    description: "Beautiful spacious loft with city views and modern amenities.",
-    price: 150,
-    images: ["/placeholder.svg", "/placeholder.svg"]
-  },
-  {
-    id: "2",
-    name: "Beachfront Studio",
-    location: "456 Ocean Ave, Beachside",
-    description: "Cozy studio apartment with direct access to the beach.",
-    price: 120,
-    images: ["/placeholder.svg", "/placeholder.svg"]
-  },
-  {
-    id: "3",
-    name: "Mountain View Cabin",
-    location: "789 Forest Rd, Highland Hills",
-    description: "Rustic cabin with panoramic mountain views and fireplace.",
-    price: 180,
-    images: ["/placeholder.svg", "/placeholder.svg"]
-  }
-];
-
-// Create some booking periods for the next two weeks
-const today = new Date();
-const sampleBookingPeriods: BookingPeriod[] = [];
-
-// Generate booking periods for each apartment
-sampleApartments.forEach(apartment => {
-  for (let i = 0; i < 10; i++) {
-    const startDate = new Date(today);
-    startDate.setDate(today.getDate() + i * 3);
-    
-    const endDate = new Date(startDate);
-    endDate.setDate(startDate.getDate() + 2);
-    
-    sampleBookingPeriods.push({
-      id: uuidv4(),
-      apartmentId: apartment.id,
-      startDate,
-      endDate,
-      isBooked: Math.random() > 0.7 // Some periods are randomly set as booked
-    });
-  }
-});
-
 export const BookingProvider: React.FC<{children: ReactNode}> = ({ children }) => {
-  const [apartments, setApartments] = useState<Apartment[]>(sampleApartments);
-  const [bookingPeriods, setBookingPeriods] = useState<BookingPeriod[]>(sampleBookingPeriods);
+  const [apartments, setApartments] = useState<Apartment[]>([]);
+  const [bookingPeriods, setBookingPeriods] = useState<BookingPeriod[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [userType, setUserType] = useState<"admin" | "user">("user");
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  const adminLogin = (username: string, password: string): boolean => {
-    if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+  // Fetch data from Supabase on component mount
+  useEffect(() => {
+    fetchApartments();
+    fetchBookingPeriods();
+    fetchBookings();
+    checkSession();
+  }, []);
+
+  // Check for existing user session
+  const checkSession = async () => {
+    const { data } = await supabase.auth.getSession();
+    if (data.session) {
       setIsAdminLoggedIn(true);
       setUserType("admin");
-      return true;
     }
-    return false;
   };
 
-  const adminLogout = (): void => {
-    setIsAdminLoggedIn(false);
-    setUserType("user");
+  // Fetch apartments from Supabase
+  const fetchApartments = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('apartments')
+        .select('*');
+      
+      if (error) throw error;
+      
+      if (data) {
+        setApartments(data.map(apt => ({
+          ...apt,
+          price: Number(apt.price)
+        })));
+      }
+    } catch (error) {
+      console.error("Error fetching apartments:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const addApartment = (apartment: Omit<Apartment, "id">) => {
-    const newApartment = { ...apartment, id: uuidv4() };
-    setApartments([...apartments, newApartment]);
+  // Fetch booking periods from Supabase
+  const fetchBookingPeriods = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('booking_periods')
+        .select('*');
+      
+      if (error) throw error;
+      
+      if (data) {
+        setBookingPeriods(data.map(period => ({
+          ...period,
+          startDate: new Date(period.start_date),
+          endDate: new Date(period.end_date),
+          apartmentId: period.apartment_id,
+          isBooked: period.is_booked
+        })));
+      }
+    } catch (error) {
+      console.error("Error fetching booking periods:", error);
+    }
   };
 
-  const updateApartment = (apartment: Apartment) => {
-    setApartments(apartments.map(apt => apt.id === apartment.id ? apartment : apt));
+  // Fetch bookings from Supabase
+  const fetchBookings = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('bookings')
+        .select('*');
+      
+      if (error) throw error;
+      
+      if (data) {
+        setBookings(data.map(booking => ({
+          ...booking,
+          periodId: booking.period_id,
+          apartmentId: booking.apartment_id,
+          userName: booking.user_name,
+          userEmail: booking.user_email,
+          userPhone: booking.user_phone,
+          bookingDate: new Date(booking.booking_date)
+        })));
+      }
+    } catch (error) {
+      console.error("Error fetching bookings:", error);
+    }
   };
 
-  const deleteApartment = (id: string) => {
-    setApartments(apartments.filter(apt => apt.id !== id));
-    setBookingPeriods(bookingPeriods.filter(period => period.apartmentId !== id));
-    setBookings(bookings.filter(booking => booking.apartmentId !== id));
+  const adminLogin = async (email: string, password: string): Promise<boolean> => {
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      if (error) {
+        toast.error(error.message);
+        return false;
+      }
+
+      if (data.session) {
+        setIsAdminLoggedIn(true);
+        setUserType("admin");
+        return true;
+      }
+      
+      return false;
+    } catch (error) {
+      console.error("Login error:", error);
+      return false;
+    }
   };
 
-  const addBookingPeriod = (period: Omit<BookingPeriod, "id">) => {
-    const newPeriod = { ...period, id: uuidv4() };
-    setBookingPeriods([...bookingPeriods, newPeriod]);
+  const adminLogout = async (): Promise<void> => {
+    try {
+      await supabase.auth.signOut();
+      setIsAdminLoggedIn(false);
+      setUserType("user");
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
   };
 
-  const deleteBookingPeriod = (id: string) => {
-    setBookingPeriods(bookingPeriods.filter(period => period.id !== id));
-    setBookings(bookings.filter(booking => booking.periodId !== id));
+  const addApartment = async (apartment: Omit<Apartment, "id">) => {
+    try {
+      const { data, error } = await supabase
+        .from('apartments')
+        .insert({
+          name: apartment.name,
+          location: apartment.location,
+          description: apartment.description,
+          price: apartment.price,
+          images: apartment.images
+        })
+        .select();
+      
+      if (error) throw error;
+      
+      if (data) {
+        const newApartment = {
+          ...data[0],
+          price: Number(data[0].price)
+        };
+        setApartments([...apartments, newApartment]);
+      }
+    } catch (error) {
+      console.error("Error adding apartment:", error);
+      toast.error("Failed to add apartment. Please try again.");
+    }
   };
 
-  const createBooking = (booking: Omit<Booking, "id" | "bookingDate">) => {
-    const newBooking = { 
-      ...booking, 
-      id: uuidv4(),
-      bookingDate: new Date()
-    };
-    
-    // Mark the period as booked
-    setBookingPeriods(
-      bookingPeriods.map(period => 
-        period.id === booking.periodId 
-          ? { ...period, isBooked: true }
-          : period
-      )
-    );
-    
-    setBookings([...bookings, newBooking]);
+  const updateApartment = async (apartment: Apartment) => {
+    try {
+      const { error } = await supabase
+        .from('apartments')
+        .update({
+          name: apartment.name,
+          location: apartment.location,
+          description: apartment.description,
+          price: apartment.price,
+          images: apartment.images
+        })
+        .eq('id', apartment.id);
+      
+      if (error) throw error;
+      
+      // Update local state
+      setApartments(apartments.map(apt => 
+        apt.id === apartment.id ? { ...apartment, price: Number(apartment.price) } : apt
+      ));
+      
+    } catch (error) {
+      console.error("Error updating apartment:", error);
+      toast.error("Failed to update apartment. Please try again.");
+    }
+  };
+
+  const deleteApartment = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('apartments')
+        .delete()
+        .eq('id', id);
+      
+      if (error) throw error;
+      
+      // Update local state
+      setApartments(apartments.filter(apt => apt.id !== id));
+      setBookingPeriods(bookingPeriods.filter(period => period.apartmentId !== id));
+      setBookings(bookings.filter(booking => booking.apartmentId !== id));
+      
+    } catch (error) {
+      console.error("Error deleting apartment:", error);
+      toast.error("Failed to delete apartment. Please try again.");
+    }
+  };
+
+  const addBookingPeriod = async (period: Omit<BookingPeriod, "id">) => {
+    try {
+      const { data, error } = await supabase
+        .from('booking_periods')
+        .insert({
+          apartment_id: period.apartmentId,
+          start_date: period.startDate.toISOString(),
+          end_date: period.endDate.toISOString(),
+          is_booked: period.isBooked
+        })
+        .select();
+      
+      if (error) throw error;
+      
+      if (data) {
+        const newPeriod = {
+          id: data[0].id,
+          apartmentId: data[0].apartment_id,
+          startDate: new Date(data[0].start_date),
+          endDate: new Date(data[0].end_date),
+          isBooked: data[0].is_booked
+        };
+        setBookingPeriods([...bookingPeriods, newPeriod]);
+      }
+    } catch (error) {
+      console.error("Error adding booking period:", error);
+      toast.error("Failed to add booking period. Please try again.");
+    }
+  };
+
+  const deleteBookingPeriod = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('booking_periods')
+        .delete()
+        .eq('id', id);
+      
+      if (error) throw error;
+      
+      // Update local state
+      setBookingPeriods(bookingPeriods.filter(period => period.id !== id));
+      setBookings(bookings.filter(booking => booking.periodId !== id));
+      
+    } catch (error) {
+      console.error("Error deleting booking period:", error);
+      toast.error("Failed to delete booking period. Please try again.");
+    }
+  };
+
+  const createBooking = async (booking: Omit<Booking, "id" | "bookingDate">) => {
+    try {
+      // Add booking to database
+      const { data, error } = await supabase
+        .from('bookings')
+        .insert({
+          period_id: booking.periodId,
+          apartment_id: booking.apartmentId,
+          user_name: booking.userName,
+          user_email: booking.userEmail,
+          user_phone: booking.userPhone
+        })
+        .select();
+      
+      if (error) throw error;
+      
+      // Mark period as booked
+      await supabase
+        .from('booking_periods')
+        .update({ is_booked: true })
+        .eq('id', booking.periodId);
+      
+      // Update local state
+      setBookingPeriods(
+        bookingPeriods.map(period => 
+          period.id === booking.periodId 
+            ? { ...period, isBooked: true }
+            : period
+        )
+      );
+      
+      if (data) {
+        const newBooking = {
+          id: data[0].id,
+          periodId: data[0].period_id,
+          apartmentId: data[0].apartment_id,
+          userName: data[0].user_name,
+          userEmail: data[0].user_email,
+          userPhone: data[0].user_phone,
+          bookingDate: new Date(data[0].booking_date)
+        };
+        setBookings([...bookings, newBooking]);
+      }
+    } catch (error) {
+      console.error("Error creating booking:", error);
+      toast.error("Failed to create booking. Please try again.");
+    }
   };
 
   const getApartmentBookingPeriods = (apartmentId: string) => {
@@ -170,7 +354,8 @@ export const BookingProvider: React.FC<{children: ReactNode}> = ({ children }) =
         getAvailableBookingPeriods,
         isAdminLoggedIn,
         adminLogin,
-        adminLogout
+        adminLogout,
+        isLoading
       }}
     >
       {children}
