@@ -38,7 +38,7 @@ const ApartmentDetails = () => {
     e.preventDefault();
     
     if (!selectedPeriodId || !userName || !userEmail || !userPhone) {
-      toast.error("Please fill in all fields");
+      toast.error("Remplissez les champs svp !");
       return;
     }
     
@@ -50,7 +50,7 @@ const ApartmentDetails = () => {
       userPhone
     });
     
-    toast.success("Booking successful!");
+    toast.success("Réservation effectuée avec succès!");
     navigate("/");
   };
   
@@ -58,8 +58,8 @@ const ApartmentDetails = () => {
     return (
       <Layout>
         <div className="text-center py-12">
-          <h2 className="text-2xl font-medium text-gray-900 mb-4">Apartment not found</h2>
-          <Button onClick={() => navigate("/")}>Return to Home</Button>
+          <h2 className="text-2xl font-medium text-gray-900 mb-4">Aucun appartement trouvé</h2>
+          <Button onClick={() => navigate("/")}>Retour à l'accueil</Button>
         </div>
       </Layout>
     );
@@ -112,7 +112,7 @@ const ApartmentDetails = () => {
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="space-y-2">
                     <label htmlFor="period" className="text-sm font-medium text-gray-700">
-                      Select Available Period
+                      Sélectionnez la période souhaitée
                     </label>
                     <Select
                       value={selectedPeriodId}
@@ -154,13 +154,13 @@ const ApartmentDetails = () => {
                   <div className="space-y-4 pt-2">
                     <div>
                       <label htmlFor="name" className="text-sm font-medium text-gray-700">
-                        Full Name
+                        Nom Complet
                       </label>
                       <Input
-                        id="name"
+                        id="Nom et Prénom"
                         value={userName}
                         onChange={(e) => setUserName(e.target.value)}
-                        placeholder="Enter your full name"
+                        placeholder="Entrez votre nom complet"
                       />
                     </div>
                     
@@ -173,19 +173,19 @@ const ApartmentDetails = () => {
                         type="email"
                         value={userEmail}
                         onChange={(e) => setUserEmail(e.target.value)}
-                        placeholder="Enter your email address"
+                        placeholder="Entrez votre email"
                       />
                     </div>
                     
                     <div>
                       <label htmlFor="phone" className="text-sm font-medium text-gray-700">
-                        Phone Number
+                        Numéro de Téléphone (facultatif)
                       </label>
                       <Input
                         id="phone"
                         value={userPhone}
                         onChange={(e) => setUserPhone(e.target.value)}
-                        placeholder="Enter your phone number"
+                        placeholder="Entrez votre numéro de téléphone "
                       />
                     </div>
                   </div>
@@ -193,7 +193,7 @@ const ApartmentDetails = () => {
                   {selectedPeriod && (
                     <div className="border-t pt-4 mt-4">
                       <div className="flex justify-between mb-2">
-                        <span className="text-gray-600">{formatCurrency(apartment.price)} x {Math.round((new Date(selectedPeriod.endDate).getTime() - new Date(selectedPeriod.startDate).getTime()) / (1000 * 60 * 60 * 24))} Dh nights</span>
+                        <span className="text-gray-600">{formatCurrency(apartment.price)} x {Math.round((new Date(selectedPeriod.endDate).getTime() - new Date(selectedPeriod.startDate).getTime()) / (1000 * 60 * 60 * 24))} Dh nuitées</span>
                         <span className="font-medium">
                           {formatCurrency(apartment.price * Math.round((new Date(selectedPeriod.endDate).getTime() - new Date(selectedPeriod.startDate).getTime()) / (1000 * 60 * 60 * 24)))} Dh
                         </span>

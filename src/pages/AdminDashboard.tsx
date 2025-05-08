@@ -340,7 +340,7 @@ const AdminDashboard: React.FC = () => {
                                   </div>
                                   <div>
                                     <label htmlFor="edit-price" className="text-sm font-medium text-gray-700 mb-1 block">
-                                      Price per Night (Dh)
+                                      Prix par nuitée (Dh)
                                     </label>
                                     <Input
                                       id="edit-price"
@@ -389,7 +389,7 @@ const AdminDashboard: React.FC = () => {
                               onClick={() => {
                                 if (confirm("Are you sure you want to delete this apartment?")) {
                                   deleteApartment(apartment.id);
-                                  toast.success("Apartment deleted successfully!");
+                                  toast.success("Appartement supprimé avec succès!");
                                 }
                               }}
                             >
@@ -403,9 +403,9 @@ const AdminDashboard: React.FC = () => {
                         </div>
                         <p className="text-gray-600 mb-4 line-clamp-2">{apartment.description}</p>
                         <div className="flex justify-between">
-                          <span className="font-medium">{apartment.price}Dh per night</span>
+                          <span className="font-medium">{apartment.price} Dh par nuitée</span>
                           <span className="text-sm text-gray-500">
-                            {getApartmentBookingPeriods(apartment.id).filter(p => !p.isBooked).length} periods available
+                            {getApartmentBookingPeriods(apartment.id).filter(p => !p.isBooked).length} Périodes disponibles
                           </span>
                         </div>
                       </div>
