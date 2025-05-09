@@ -1,9 +1,9 @@
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { useBooking } from "@/context/BookingContext";
 import Layout from "@/components/Layout";
+import ReservationsTable from "@/components/ReservationsTable";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -603,48 +603,11 @@ const AdminDashboard: React.FC = () => {
                 <p className="text-gray-500">No reservations have been made yet.</p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 gap-4">
-                {bookings.map((booking) => {
-                  const apartment = apartments.find((a) => a.id === booking.apartmentId);
-                  const period = bookingPeriods.find((p) => p.id === booking.periodId);
-                  
-                  if (!apartment || !period) return null;
-                  
-                  return (
-                    <Card key={booking.id}>
-                      <CardContent className="p-6">
-                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                          <div className="md:col-span-1">
-                            <h3 className="font-semibold text-gray-900">Guest Information</h3>
-                            <p className="text-gray-800">{booking.userName}</p>
-                            <p className="text-gray-600">{booking.userEmail}</p>
-                            <p className="text-gray-600">{booking.userPhone}</p>
-                          </div>
-                          <div className="md:col-span-1">
-                            <h3 className="font-semibold text-gray-900">Apartment</h3>
-                            <p className="text-gray-800">{apartment.name}</p>
-                            <p className="text-gray-600">{apartment.location}</p>
-                          </div>
-                          <div className="md:col-span-1">
-                            <h3 className="font-semibold text-gray-900">Dates</h3>
-                            <p className="text-gray-800">
-                              {format(new Date(period.startDate), "MMM dd")} - {format(new Date(period.endDate), "MMM dd, yyyy")}
-                            </p>
-                            <p className="text-gray-600">
-                              {Math.round((new Date(period.endDate).getTime() - new Date(period.startDate).getTime()) / (1000 * 60 * 60 * 24))} nights
-                            </p>
-                          </div>
-                          <div className="md:col-span-1">
-                            <h3 className="font-semibold text-gray-900">Booking Details</h3>
-                            <p className="text-gray-800">Booked on {format(new Date(booking.bookingDate), "MMM dd, yyyy")}</p>
-                            <p className="text-gray-600">Booking #{booking.id.slice(0, 8)}</p>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  );
-                })}
-              </div>
+              <ReservationsTable 
+                bookings={bookings}
+                apartments={apartments}
+                bookingPeriods={bookingPeriods}
+              />
             )}
           </TabsContent>
         </Tabs>
