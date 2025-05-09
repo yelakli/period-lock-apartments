@@ -1,3 +1,4 @@
+
 import React, { createContext, useState, useContext, ReactNode, useEffect } from "react";
 import { Apartment, BookingPeriod, Booking, NormalBooking } from "@/types";
 import { supabase } from "@/integrations/supabase/client";
@@ -66,12 +67,14 @@ export const BookingProvider: React.FC<{children: ReactNode}> = ({ children }) =
       if (error) throw error;
       
       if (data) {
+        // Explicitly cast booking_type to "period" | "normal"
         setApartments(data.map(apt => ({
           ...apt,
           price: Number(apt.price),
-          bookingType: apt.booking_type,
+          bookingType: apt.booking_type as "period" | "normal",
           minNights: apt.min_nights,
-          maxNights: apt.max_nights
+          maxNights: apt.max_nights,
+          images: apt.images || []
         })));
       }
     } catch (error) {
@@ -239,12 +242,14 @@ export const BookingProvider: React.FC<{children: ReactNode}> = ({ children }) =
       }
       
       if (data) {
-        const newApartment = {
+        const newApartment: Apartment = {
           ...data[0],
+          id: data[0].id,
           price: Number(data[0].price),
-          bookingType: data[0].booking_type,
+          bookingType: data[0].booking_type as "period" | "normal",
           minNights: data[0].min_nights,
-          maxNights: data[0].max_nights
+          maxNights: data[0].max_nights,
+          images: data[0].images || []
         };
         setApartments([...apartments, newApartment]);
         toast.success("Apartment added successfully!");
@@ -287,7 +292,7 @@ export const BookingProvider: React.FC<{children: ReactNode}> = ({ children }) =
       setApartments(apartments.map(apt => 
         apt.id === apartment.id ? { 
           ...apartment, 
-          price: Number(apartment.price) 
+          price: Number(apartment.price)
         } : apt
       ));
       
