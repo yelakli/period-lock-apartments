@@ -6,6 +6,9 @@ export interface Apartment {
   description: string;
   price: number;
   images: string[];
+  bookingType: "period" | "normal";
+  minNights?: number;
+  maxNights?: number;
 }
 
 export interface BookingPeriod {
@@ -26,6 +29,17 @@ export interface Booking {
   bookingDate: Date;
 }
 
+export interface NormalBooking {
+  id: string;
+  apartmentId: string;
+  userName: string;
+  userEmail?: string;
+  userPhone?: string;
+  startDate: Date;
+  endDate: Date;
+  bookingDate: Date;
+}
+
 export type User = "admin" | "user";
 
 // Supabase tables types for reference (not used directly)
@@ -36,6 +50,9 @@ export interface ApartmentTable {
   description: string;
   price: number;
   images: string[];
+  booking_type: "period" | "normal";
+  min_nights?: number;
+  max_nights?: number;
 }
 
 export interface BookingPeriodTable {
@@ -53,5 +70,16 @@ export interface BookingTable {
   user_name: string;
   user_email?: string;
   user_phone?: string;
+  booking_date: string;
+}
+
+export interface NormalBookingTable {
+  id: string;
+  apartment_id: string;
+  user_name: string;
+  user_email?: string;
+  user_phone?: string;
+  start_date: string;
+  end_date: string;
   booking_date: string;
 }

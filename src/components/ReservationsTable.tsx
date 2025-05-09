@@ -5,7 +5,7 @@ import { Download, FileText, Search } from "lucide-react";
 import { jsPDF } from "jspdf";
 import * as XLSX from "xlsx";
 
-import { Booking, Apartment, BookingPeriod } from "@/types";
+import { Booking, Apartment, BookingPeriod, NormalBooking } from "@/types";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,19 +23,23 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface ReservationsTableProps {
   bookings: Booking[];
+  normalBookings: NormalBooking[];
   apartments: Apartment[];
   bookingPeriods: BookingPeriod[];
 }
 
 const ReservationsTable: React.FC<ReservationsTableProps> = ({
   bookings,
+  normalBookings,
   apartments,
   bookingPeriods,
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [activeTab, setActiveTab] = useState<"period" | "normal">("period");
 
   const filteredBookings = useMemo(() => {
     return bookings.filter((booking) => {
@@ -52,7 +56,21 @@ const ReservationsTable: React.FC<ReservationsTableProps> = ({
     });
   }, [bookings, apartments, bookingPeriods, searchTerm]);
 
-  const bookingsData = useMemo(() => {
+  const filteredNormalBookings = useMemo(() => {
+    return normalBookings.filter((booking) => {
+      const apartment = apartments.find((a) => a.id === booking.apartmentId);
+      
+      if (!apartment) return false;
+      
+      const searchString = `${booking.userName} ${booking.userEmail || ""} ${
+        booking.userPhone || ""
+      } ${apartment.name} ${apartment.location}`.toLowerCase();
+      
+      return searchString.includes(searchTerm.toLowerCase());
+    });
+  }, [normalBookings, apartments, searchTerm]);
+
+  const periodBookingsData = useMemo(() => {
     return filteredBookings.map((booking) => {
       const apartment = apartments.find((a) => a.id === booking.apartmentId);
       const period = bookingPeriods.find((p) => p.id === booking.periodId);
@@ -80,6 +98,33 @@ const ReservationsTable: React.FC<ReservationsTableProps> = ({
     }).filter(Boolean);
   }, [filteredBookings, apartments, bookingPeriods]);
 
+  const normalBookingsData = useMemo(() => {
+    return filteredNormalBookings.map((booking) => {
+      const apartment = apartments.find((a) => a.id === booking.apartmentId);
+      
+      if (!apartment) return null;
+      
+      const nights = Math.round(
+        (new Date(booking.endDate).getTime() - new Date(booking.startDate).getTime()) /
+          (1000 * 60 * 60 * 24)
+      );
+      
+      return {
+        id: booking.id,
+        userName: booking.userName,
+        userEmail: booking.userEmail || "N/A",
+        userPhone: booking.userPhone || "N/A",
+        apartmentName: apartment.name,
+        apartmentLocation: apartment.location,
+        startDate: format(new Date(booking.startDate), "MMM dd, yyyy"),
+        endDate: format(new Date(booking.endDate), "MMM dd, yyyy"),
+        nights: nights,
+        bookingDate: format(new Date(booking.bookingDate), "MMM dd, yyyy"),
+        totalAmount: apartment.price * nights,
+      };
+    }).filter(Boolean);
+  }, [filteredNormalBookings, apartments]);
+
   const exportToPDF = () => {
     const doc = new jsPDF("landscape");
     const tableColumn = [
@@ -94,7 +139,9 @@ const ReservationsTable: React.FC<ReservationsTableProps> = ({
     ];
     const tableRows: any[][] = [];
 
-    bookingsData.forEach((booking) => {
+    const bookingsToExport = activeTab === "period" ? periodBookingsData : normalBookingsData;
+    
+    bookingsToExport.forEach((booking) => {
       const bookingData = [
         booking!.userName,
         booking!.userEmail,
@@ -109,7 +156,7 @@ const ReservationsTable: React.FC<ReservationsTableProps> = ({
     });
 
     doc.setFontSize(14);
-    doc.text("Reservations Report", 14, 15);
+    doc.text(`${activeTab === "period" ? "Period" : "Normal"} Bookings Report`, 14, 15);
     doc.setFontSize(10);
     doc.text(`Generated on: ${format(new Date(), "MMM dd, yyyy")}`, 14, 22);
 
@@ -121,11 +168,13 @@ const ReservationsTable: React.FC<ReservationsTableProps> = ({
       headStyles: { fillColor: [41, 128, 185] },
     });
 
-    doc.save("reservations-report.pdf");
+    doc.save(`${activeTab === "period" ? "period" : "normal"}-bookings-report.pdf`);
   };
 
   const exportToCSV = () => {
-    const csvData = bookingsData.map((booking) => ({
+    const bookingsToExport = activeTab === "period" ? periodBookingsData : normalBookingsData;
+    
+    const csvData = bookingsToExport.map((booking) => ({
       "Guest Name": booking!.userName,
       "Email": booking!.userEmail,
       "Phone": booking!.userPhone,
@@ -140,8 +189,8 @@ const ReservationsTable: React.FC<ReservationsTableProps> = ({
 
     const worksheet = XLSX.utils.json_to_sheet(csvData);
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Reservations");
-    XLSX.writeFile(workbook, "reservations-report.xlsx");
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Bookings");
+    XLSX.writeFile(workbook, `${activeTab === "period" ? "period" : "normal"}-bookings-report.xlsx`);
   };
 
   return (
@@ -178,60 +227,125 @@ const ReservationsTable: React.FC<ReservationsTableProps> = ({
           </DropdownMenu>
         </div>
       </div>
-      
-      <div className="rounded-md border overflow-hidden">
-        <Table>
-          <TableCaption>
-            {filteredBookings.length === 0
-              ? "No reservations found."
-              : `A list of ${filteredBookings.length} reservation${
-                  filteredBookings.length === 1 ? "" : "s"
-                }.`}
-          </TableCaption>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Guest</TableHead>
-              <TableHead>Contact</TableHead>
-              <TableHead>Apartment</TableHead>
-              <TableHead>Check-in</TableHead>
-              <TableHead>Check-out</TableHead>
-              <TableHead>Nights</TableHead>
-              <TableHead className="text-right">Total</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {bookingsData.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={7} className="h-24 text-center">
-                  No reservations found
-                </TableCell>
-              </TableRow>
-            ) : (
-              bookingsData.map((booking) => (
-                <TableRow key={booking!.id}>
-                  <TableCell className="font-medium">{booking!.userName}</TableCell>
-                  <TableCell>
-                    <div className="text-xs">
-                      <p>{booking!.userEmail}</p>
-                      <p>{booking!.userPhone}</p>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div>
-                      <p>{booking!.apartmentName}</p>
-                      <p className="text-xs text-muted-foreground">{booking!.apartmentLocation}</p>
-                    </div>
-                  </TableCell>
-                  <TableCell>{booking!.startDate}</TableCell>
-                  <TableCell>{booking!.endDate}</TableCell>
-                  <TableCell>{booking!.nights}</TableCell>
-                  <TableCell className="text-right font-medium">{booking!.totalAmount} Dh</TableCell>
+
+      <Tabs defaultValue="period" onValueChange={(value) => setActiveTab(value as "period" | "normal")}>
+        <TabsList>
+          <TabsTrigger value="period">Period Bookings</TabsTrigger>
+          <TabsTrigger value="normal">Normal Bookings</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="period">
+          <div className="rounded-md border overflow-hidden">
+            <Table>
+              <TableCaption>
+                {filteredBookings.length === 0
+                  ? "No period reservations found."
+                  : `A list of ${filteredBookings.length} period reservation${
+                      filteredBookings.length === 1 ? "" : "s"
+                    }.`}
+              </TableCaption>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Guest</TableHead>
+                  <TableHead>Contact</TableHead>
+                  <TableHead>Apartment</TableHead>
+                  <TableHead>Check-in</TableHead>
+                  <TableHead>Check-out</TableHead>
+                  <TableHead>Nights</TableHead>
+                  <TableHead className="text-right">Total</TableHead>
                 </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </div>
+              </TableHeader>
+              <TableBody>
+                {periodBookingsData.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={7} className="h-24 text-center">
+                      No period reservations found
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  periodBookingsData.map((booking) => (
+                    <TableRow key={booking!.id}>
+                      <TableCell className="font-medium">{booking!.userName}</TableCell>
+                      <TableCell>
+                        <div className="text-xs">
+                          <p>{booking!.userEmail}</p>
+                          <p>{booking!.userPhone}</p>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div>
+                          <p>{booking!.apartmentName}</p>
+                          <p className="text-xs text-muted-foreground">{booking!.apartmentLocation}</p>
+                        </div>
+                      </TableCell>
+                      <TableCell>{booking!.startDate}</TableCell>
+                      <TableCell>{booking!.endDate}</TableCell>
+                      <TableCell>{booking!.nights}</TableCell>
+                      <TableCell className="text-right font-medium">{booking!.totalAmount} Dh</TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="normal">
+          <div className="rounded-md border overflow-hidden">
+            <Table>
+              <TableCaption>
+                {filteredNormalBookings.length === 0
+                  ? "No normal reservations found."
+                  : `A list of ${filteredNormalBookings.length} normal reservation${
+                      filteredNormalBookings.length === 1 ? "" : "s"
+                    }.`}
+              </TableCaption>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Guest</TableHead>
+                  <TableHead>Contact</TableHead>
+                  <TableHead>Apartment</TableHead>
+                  <TableHead>Check-in</TableHead>
+                  <TableHead>Check-out</TableHead>
+                  <TableHead>Nights</TableHead>
+                  <TableHead className="text-right">Total</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {normalBookingsData.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={7} className="h-24 text-center">
+                      No normal reservations found
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  normalBookingsData.map((booking) => (
+                    <TableRow key={booking!.id}>
+                      <TableCell className="font-medium">{booking!.userName}</TableCell>
+                      <TableCell>
+                        <div className="text-xs">
+                          <p>{booking!.userEmail}</p>
+                          <p>{booking!.userPhone}</p>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div>
+                          <p>{booking!.apartmentName}</p>
+                          <p className="text-xs text-muted-foreground">{booking!.apartmentLocation}</p>
+                        </div>
+                      </TableCell>
+                      <TableCell>{booking!.startDate}</TableCell>
+                      <TableCell>{booking!.endDate}</TableCell>
+                      <TableCell>{booking!.nights}</TableCell>
+                      <TableCell className="text-right font-medium">{booking!.totalAmount} Dh</TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

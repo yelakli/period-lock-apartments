@@ -11,26 +11,35 @@ export type Database = {
     Tables: {
       apartments: {
         Row: {
+          booking_type: string
           description: string
           id: string
           images: string[] | null
           location: string
+          max_nights: number | null
+          min_nights: number | null
           name: string
           price: number
         }
         Insert: {
+          booking_type?: string
           description: string
           id?: string
           images?: string[] | null
           location: string
+          max_nights?: number | null
+          min_nights?: number | null
           name: string
           price: number
         }
         Update: {
+          booking_type?: string
           description?: string
           id?: string
           images?: string[] | null
           location?: string
+          max_nights?: number | null
+          min_nights?: number | null
           name?: string
           price?: number
         }
@@ -109,6 +118,47 @@ export type Database = {
             columns: ["period_id"]
             isOneToOne: false
             referencedRelation: "booking_periods"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      normal_bookings: {
+        Row: {
+          apartment_id: string
+          booking_date: string
+          end_date: string
+          id: string
+          start_date: string
+          user_email: string | null
+          user_name: string
+          user_phone: string | null
+        }
+        Insert: {
+          apartment_id: string
+          booking_date?: string
+          end_date: string
+          id?: string
+          start_date: string
+          user_email?: string | null
+          user_name: string
+          user_phone?: string | null
+        }
+        Update: {
+          apartment_id?: string
+          booking_date?: string
+          end_date?: string
+          id?: string
+          start_date?: string
+          user_email?: string | null
+          user_name?: string
+          user_phone?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "normal_bookings_apartment_id_fkey"
+            columns: ["apartment_id"]
+            isOneToOne: false
+            referencedRelation: "apartments"
             referencedColumns: ["id"]
           },
         ]

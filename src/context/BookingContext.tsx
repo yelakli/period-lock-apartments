@@ -1,6 +1,5 @@
-
 import React, { createContext, useState, useContext, ReactNode, useEffect } from "react";
-import { Apartment, BookingPeriod, Booking } from "@/types";
+import { Apartment, BookingPeriod, Booking, NormalBooking } from "@/types";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -8,6 +7,7 @@ interface BookingContextType {
   apartments: Apartment[];
   bookingPeriods: BookingPeriod[];
   bookings: Booking[];
+  normalBookings: NormalBooking[];
   userType: "admin" | "user";
   setUserType: (type: "admin" | "user") => void;
   addApartment: (apartment: Omit<Apartment, "id">) => Promise<void>;
@@ -16,8 +16,10 @@ interface BookingContextType {
   addBookingPeriod: (period: Omit<BookingPeriod, "id">) => Promise<void>;
   deleteBookingPeriod: (id: string) => Promise<void>;
   createBooking: (booking: Omit<Booking, "id" | "bookingDate">) => Promise<void>;
+  createNormalBooking: (booking: Omit<NormalBooking, "id" | "bookingDate">) => Promise<void>;
   getApartmentBookingPeriods: (apartmentId: string) => BookingPeriod[];
   getAvailableBookingPeriods: (apartmentId: string) => BookingPeriod[];
+  isNormalDateRangeAvailable: (apartmentId: string, startDate: Date, endDate: Date) => Promise<boolean>;
   isAdminLoggedIn: boolean;
   adminLogin: (username: string, password: string) => Promise<boolean>;
   adminLogout: () => Promise<void>;
@@ -30,6 +32,7 @@ export const BookingProvider: React.FC<{children: ReactNode}> = ({ children }) =
   const [apartments, setApartments] = useState<Apartment[]>([]);
   const [bookingPeriods, setBookingPeriods] = useState<BookingPeriod[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
+  const [normalBookings, setNormalBookings] = useState<NormalBooking[]>([]);
   const [userType, setUserType] = useState<"admin" | "user">("user");
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -39,6 +42,7 @@ export const BookingProvider: React.FC<{children: ReactNode}> = ({ children }) =
     fetchApartments();
     fetchBookingPeriods();
     fetchBookings();
+    fetchNormalBookings();
     checkSession();
   }, []);
 
@@ -64,7 +68,10 @@ export const BookingProvider: React.FC<{children: ReactNode}> = ({ children }) =
       if (data) {
         setApartments(data.map(apt => ({
           ...apt,
-          price: Number(apt.price)
+          price: Number(apt.price),
+          bookingType: apt.booking_type,
+          minNights: apt.min_nights,
+          maxNights: apt.max_nights
         })));
       }
     } catch (error) {
@@ -122,6 +129,52 @@ export const BookingProvider: React.FC<{children: ReactNode}> = ({ children }) =
     }
   };
 
+  // Fetch normal bookings from Supabase
+  const fetchNormalBookings = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('normal_bookings')
+        .select('*');
+      
+      if (error) throw error;
+      
+      if (data) {
+        setNormalBookings(data.map(booking => ({
+          ...booking,
+          apartmentId: booking.apartment_id,
+          userName: booking.user_name,
+          userEmail: booking.user_email,
+          userPhone: booking.user_phone,
+          startDate: new Date(booking.start_date),
+          endDate: new Date(booking.end_date),
+          bookingDate: new Date(booking.booking_date)
+        })));
+      }
+    } catch (error) {
+      console.error("Error fetching normal bookings:", error);
+    }
+  };
+
+  // Check if a date range is available for normal booking
+  const isNormalDateRangeAvailable = async (apartmentId: string, startDate: Date, endDate: Date): Promise<boolean> => {
+    try {
+      // Check for overlapping bookings
+      const { data, error } = await supabase
+        .from('normal_bookings')
+        .select('*')
+        .eq('apartment_id', apartmentId)
+        .or(`start_date.lt.${endDate.toISOString()},end_date.gt.${startDate.toISOString()}`);
+      
+      if (error) throw error;
+      
+      // If there are any overlapping bookings, the date range is not available
+      return data.length === 0;
+    } catch (error) {
+      console.error("Error checking date range availability:", error);
+      return false;
+    }
+  };
+
   const adminLogin = async (email: string, password: string): Promise<boolean> => {
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
@@ -173,7 +226,10 @@ export const BookingProvider: React.FC<{children: ReactNode}> = ({ children }) =
           location: apartment.location,
           description: apartment.description,
           price: apartment.price,
-          images: apartment.images
+          images: apartment.images,
+          booking_type: apartment.bookingType,
+          min_nights: apartment.minNights,
+          max_nights: apartment.maxNights
         })
         .select();
       
@@ -185,7 +241,10 @@ export const BookingProvider: React.FC<{children: ReactNode}> = ({ children }) =
       if (data) {
         const newApartment = {
           ...data[0],
-          price: Number(data[0].price)
+          price: Number(data[0].price),
+          bookingType: data[0].booking_type,
+          minNights: data[0].min_nights,
+          maxNights: data[0].max_nights
         };
         setApartments([...apartments, newApartment]);
         toast.success("Apartment added successfully!");
@@ -212,7 +271,10 @@ export const BookingProvider: React.FC<{children: ReactNode}> = ({ children }) =
           location: apartment.location,
           description: apartment.description,
           price: apartment.price,
-          images: apartment.images
+          images: apartment.images,
+          booking_type: apartment.bookingType,
+          min_nights: apartment.minNights,
+          max_nights: apartment.maxNights
         })
         .eq('id', apartment.id);
       
@@ -223,7 +285,10 @@ export const BookingProvider: React.FC<{children: ReactNode}> = ({ children }) =
       
       // Update local state
       setApartments(apartments.map(apt => 
-        apt.id === apartment.id ? { ...apartment, price: Number(apartment.price) } : apt
+        apt.id === apartment.id ? { 
+          ...apartment, 
+          price: Number(apartment.price) 
+        } : apt
       ));
       
       toast.success("Apartment updated successfully!");
@@ -390,6 +455,52 @@ export const BookingProvider: React.FC<{children: ReactNode}> = ({ children }) =
     }
   };
 
+  const createNormalBooking = async (booking: Omit<NormalBooking, "id" | "bookingDate">) => {
+    try {
+      // Add booking to database
+      const { data, error } = await supabase
+        .from('normal_bookings')
+        .insert({
+          apartment_id: booking.apartmentId,
+          user_name: booking.userName,
+          user_email: booking.userEmail,
+          user_phone: booking.userPhone,
+          start_date: booking.startDate.toISOString(),
+          end_date: booking.endDate.toISOString()
+        })
+        .select();
+      
+      if (error) {
+        console.error("Error details:", error);
+        throw error;
+      }
+      
+      if (data) {
+        const newBooking = {
+          id: data[0].id,
+          apartmentId: data[0].apartment_id,
+          userName: data[0].user_name,
+          userEmail: data[0].user_email,
+          userPhone: data[0].user_phone,
+          startDate: new Date(data[0].start_date),
+          endDate: new Date(data[0].end_date),
+          bookingDate: new Date(data[0].booking_date)
+        };
+        setNormalBookings([...normalBookings, newBooking]);
+        toast.success("Booking created successfully!");
+      }
+    } catch (error: any) {
+      console.error("Error creating normal booking:", error);
+      
+      // Check if error message is from the validation trigger
+      if (error.message?.includes("nights")) {
+        toast.error(error.message);
+      } else {
+        toast.error("Failed to create booking. Please try again.");
+      }
+    }
+  };
+
   const getApartmentBookingPeriods = (apartmentId: string) => {
     return bookingPeriods.filter(period => period.apartmentId === apartmentId);
   };
@@ -404,6 +515,7 @@ export const BookingProvider: React.FC<{children: ReactNode}> = ({ children }) =
         apartments,
         bookingPeriods,
         bookings,
+        normalBookings,
         userType,
         setUserType,
         addApartment,
@@ -412,8 +524,10 @@ export const BookingProvider: React.FC<{children: ReactNode}> = ({ children }) =
         addBookingPeriod,
         deleteBookingPeriod,
         createBooking,
+        createNormalBooking,
         getApartmentBookingPeriods,
         getAvailableBookingPeriods,
+        isNormalDateRangeAvailable,
         isAdminLoggedIn,
         adminLogin,
         adminLogout,

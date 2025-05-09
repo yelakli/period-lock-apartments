@@ -11,7 +11,7 @@ import { formatCurrency } from "@/utils/format";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const Index = () => {
-  const { apartments, getAvailableBookingPeriods, isLoading } = useBooking();
+  const { apartments, getAvailableBookingPeriods, normalBookings, isLoading } = useBooking();
   const [searchTerm, setSearchTerm] = useState("");
 
   const filteredApartments = apartments.filter(
@@ -40,9 +40,18 @@ const Index = () => {
           <p className="text-left">- Toute réservation peut être de 4 à 5 Jours consécutifs (non séparés) pour Tafoult, Amlal, Essayadine, Essaouira, Marrakech et Martil.</p>
           <p className="text-left">- Les réservations à "CLUB EVASION" et "Résidence Beau Rivage" ne peuvent pas être inférieure à 5 jours consécutifs.</p>
           <p className="text-left">- Il n'est pas possible de réserver plus d'un appartement.</p>
-          <p className="text-left">- La réservation n’est considérée comme définitive que si la contribution du participant est intégralement réglée.</p>
+          <p className="text-left">- La réservation n'est considérée comme définitive que si la contribution du participant est intégralement réglée.</p>
         </div>
 
+        <div className="mb-6">
+          <Input
+            type="search"
+            placeholder="Search apartments by name, location or description..."
+            className="max-w-md mx-auto"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
 
         {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -71,7 +80,15 @@ const Index = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredApartments.map((apartment) => {
-              const availablePeriods = getAvailableBookingPeriods(apartment.id);
+              const availablePeriods = apartment.bookingType === 'period' 
+                ? getAvailableBookingPeriods(apartment.id)
+                : [];
+              
+              // For normal bookings, show as available if there is at least one availability
+              const hasNormalAvailability = apartment.bookingType === 'normal';
+              const isAvailable = apartment.bookingType === 'period' 
+                ? availablePeriods.length > 0 
+                : hasNormalAvailability;
               
               return (
                 <Link to={`/apartment/${apartment.id}`} key={apartment.id}>
@@ -88,6 +105,11 @@ const Index = () => {
                           <span className="text-gray-400">No image available</span>
                         </div>
                       )}
+                      <div className="absolute top-2 right-2">
+                        <Badge variant="outline" className={`${apartment.bookingType === 'normal' ? 'bg-purple-100 text-purple-800 border-purple-200' : 'bg-blue-100 text-blue-800 border-blue-200'}`}>
+                          {apartment.bookingType === 'normal' ? 'Normal booking' : 'Period booking'}
+                        </Badge>
+                      </div>
                     </div>
                     <CardContent className="pt-4">
                       <h3 className="text-xl font-medium text-gray-900 mb-1">{apartment.name}</h3>
@@ -96,15 +118,27 @@ const Index = () => {
                         <span>{apartment.location}</span>
                       </div>
                       <p className="text-gray-600 line-clamp-2">{apartment.description}</p>
+                      
+                      {apartment.bookingType === 'normal' && apartment.minNights && apartment.maxNights && (
+                        <p className="text-sm text-gray-500 mt-2">
+                          {apartment.minNights === apartment.maxNights 
+                            ? `${apartment.minNights} nights stay required` 
+                            : `${apartment.minNights}-${apartment.maxNights} nights stay`}
+                        </p>
+                      )}
                     </CardContent>
                     <CardFooter className="flex items-center justify-between border-t pt-4">
                       <div className="text-lg font-semibold text-gray-900">
-                        {formatCurrency(apartment.price)} <span className="text-sm font-normal text-gray-500"> Dh/ nuitée</span>
+                        {formatCurrency(apartment.price)} <span className="text-sm font-normal text-gray-500">Dh/night</span>
                       </div>
-                      <Badge variant={availablePeriods.length > 0 ? "outline" : "secondary"}>
-                        {availablePeriods.length > 0
-                          ? `${availablePeriods.length} Période${availablePeriods.length === 1 ? "" : "s"} Disponible${availablePeriods.length === 1 ? "" : "s"}`
-                          : "Réservations Complètes"}
+                      <Badge variant={isAvailable ? "outline" : "secondary"}>
+                        {apartment.bookingType === 'period' ? (
+                          availablePeriods.length > 0
+                            ? `${availablePeriods.length} Period${availablePeriods.length === 1 ? "" : "s"} Available`
+                            : "No Periods Available"
+                        ) : (
+                          "Check Availability"
+                        )}
                       </Badge>
                     </CardFooter>
                   </Card>

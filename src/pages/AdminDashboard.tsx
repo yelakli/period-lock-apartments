@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -30,6 +31,26 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  RadioGroup,
+  RadioGroupItem,
+} from "@/components/ui/radio-group";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -42,6 +63,7 @@ const AdminDashboard: React.FC = () => {
     apartments,
     bookingPeriods,
     bookings,
+    normalBookings,
     addApartment,
     updateApartment,
     deleteApartment,
@@ -60,6 +82,9 @@ const AdminDashboard: React.FC = () => {
     description: "",
     price: 0,
     images: ["", ""],
+    bookingType: "period" as "period" | "normal",
+    minNights: undefined as number | undefined,
+    maxNights: undefined as number | undefined,
   });
 
   // State for adding booking periods
@@ -75,12 +100,29 @@ const AdminDashboard: React.FC = () => {
   }
 
   const handleAddApartment = () => {
+    // Validate night constraints for normal booking
+    if (apartmentForm.bookingType === "normal") {
+      if (!apartmentForm.minNights && !apartmentForm.maxNights) {
+        toast.error("Please specify at least one night constraint (minimum or maximum nights)");
+        return;
+      }
+      
+      if (apartmentForm.minNights && apartmentForm.maxNights && 
+          apartmentForm.minNights > apartmentForm.maxNights) {
+        toast.error("Minimum nights cannot be greater than maximum nights");
+        return;
+      }
+    }
+    
     addApartment({
       name: apartmentForm.name,
       location: apartmentForm.location,
       description: apartmentForm.description,
       price: Number(apartmentForm.price),
       images: apartmentForm.images.filter(Boolean),
+      bookingType: apartmentForm.bookingType,
+      minNights: apartmentForm.bookingType === "normal" ? apartmentForm.minNights : undefined,
+      maxNights: apartmentForm.bookingType === "normal" ? apartmentForm.maxNights : undefined,
     });
     
     setApartmentForm({
@@ -89,14 +131,30 @@ const AdminDashboard: React.FC = () => {
       description: "",
       price: 0,
       images: ["", ""],
+      bookingType: "period",
+      minNights: undefined,
+      maxNights: undefined,
     });
     
     setIsAddingApartment(false);
-    toast.success("Apartment added successfully!");
   };
 
   const handleEditApartment = () => {
     if (editingApartment) {
+      // Validate night constraints for normal booking
+      if (apartmentForm.bookingType === "normal") {
+        if (!apartmentForm.minNights && !apartmentForm.maxNights) {
+          toast.error("Please specify at least one night constraint (minimum or maximum nights)");
+          return;
+        }
+        
+        if (apartmentForm.minNights && apartmentForm.maxNights && 
+            apartmentForm.minNights > apartmentForm.maxNights) {
+          toast.error("Minimum nights cannot be greater than maximum nights");
+          return;
+        }
+      }
+      
       updateApartment({
         id: editingApartment,
         name: apartmentForm.name,
@@ -104,10 +162,12 @@ const AdminDashboard: React.FC = () => {
         description: apartmentForm.description,
         price: Number(apartmentForm.price),
         images: apartmentForm.images.filter(Boolean),
+        bookingType: apartmentForm.bookingType,
+        minNights: apartmentForm.bookingType === "normal" ? apartmentForm.minNights : undefined,
+        maxNights: apartmentForm.bookingType === "normal" ? apartmentForm.maxNights : undefined,
       });
       
       setEditingApartment(null);
-      toast.success("Apartment updated successfully!");
     }
   };
 
@@ -119,6 +179,9 @@ const AdminDashboard: React.FC = () => {
       description: apartment.description,
       price: apartment.price,
       images: [...apartment.images, "", ""].slice(0, 2), // Ensure we have 2 image slots
+      bookingType: apartment.bookingType || "period",
+      minNights: apartment.minNights,
+      maxNights: apartment.maxNights,
     });
   };
 
@@ -144,8 +207,6 @@ const AdminDashboard: React.FC = () => {
     setPeriodStartDate(undefined);
     setPeriodEndDate(undefined);
     setIsAddingPeriod(false);
-    
-    toast.success("Booking period added successfully!");
   };
 
   return (
@@ -231,6 +292,65 @@ const AdminDashboard: React.FC = () => {
                         min="0"
                       />
                     </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-700 mb-1 block">
+                        Booking Type
+                      </label>
+                      <RadioGroup 
+                        value={apartmentForm.bookingType} 
+                        onValueChange={(value: "period" | "normal") => 
+                          setApartmentForm({ ...apartmentForm, bookingType: value })
+                        }
+                        className="flex gap-4"
+                      >
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="period" id="period" />
+                          <label htmlFor="period" className="text-sm">Period-based booking</label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="normal" id="normal" />
+                          <label htmlFor="normal" className="text-sm">Normal date range booking</label>
+                        </div>
+                      </RadioGroup>
+                    </div>
+                    
+                    {apartmentForm.bookingType === "normal" && (
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label htmlFor="minNights" className="text-sm font-medium text-gray-700 mb-1 block">
+                            Minimum Nights
+                          </label>
+                          <Input
+                            id="minNights"
+                            type="number"
+                            value={apartmentForm.minNights ?? ""}
+                            onChange={(e) => setApartmentForm({ 
+                              ...apartmentForm, 
+                              minNights: e.target.value ? parseInt(e.target.value) : undefined 
+                            })}
+                            placeholder="Min nights"
+                            min="1"
+                          />
+                        </div>
+                        <div>
+                          <label htmlFor="maxNights" className="text-sm font-medium text-gray-700 mb-1 block">
+                            Maximum Nights
+                          </label>
+                          <Input
+                            id="maxNights"
+                            type="number"
+                            value={apartmentForm.maxNights ?? ""}
+                            onChange={(e) => setApartmentForm({ 
+                              ...apartmentForm, 
+                              maxNights: e.target.value ? parseInt(e.target.value) : undefined 
+                            })}
+                            placeholder="Max nights"
+                            min="1"
+                          />
+                        </div>
+                      </div>
+                    )}
+                    
                     <div>
                       <label htmlFor="images" className="text-sm font-medium text-gray-700 mb-1 block">
                         Image URLs (optional)
@@ -340,7 +460,7 @@ const AdminDashboard: React.FC = () => {
                                   </div>
                                   <div>
                                     <label htmlFor="edit-price" className="text-sm font-medium text-gray-700 mb-1 block">
-                                      Prix par nuitée (Dh)
+                                      Price per Night (Dh)
                                     </label>
                                     <Input
                                       id="edit-price"
@@ -351,6 +471,65 @@ const AdminDashboard: React.FC = () => {
                                       min="0"
                                     />
                                   </div>
+                                  <div>
+                                    <label className="text-sm font-medium text-gray-700 mb-1 block">
+                                      Booking Type
+                                    </label>
+                                    <RadioGroup 
+                                      value={apartmentForm.bookingType} 
+                                      onValueChange={(value: "period" | "normal") => 
+                                        setApartmentForm({ ...apartmentForm, bookingType: value })
+                                      }
+                                      className="flex gap-4"
+                                    >
+                                      <div className="flex items-center space-x-2">
+                                        <RadioGroupItem value="period" id="edit-period" />
+                                        <label htmlFor="edit-period" className="text-sm">Period-based booking</label>
+                                      </div>
+                                      <div className="flex items-center space-x-2">
+                                        <RadioGroupItem value="normal" id="edit-normal" />
+                                        <label htmlFor="edit-normal" className="text-sm">Normal date range booking</label>
+                                      </div>
+                                    </RadioGroup>
+                                  </div>
+                                  
+                                  {apartmentForm.bookingType === "normal" && (
+                                    <div className="grid grid-cols-2 gap-4">
+                                      <div>
+                                        <label htmlFor="edit-minNights" className="text-sm font-medium text-gray-700 mb-1 block">
+                                          Minimum Nights
+                                        </label>
+                                        <Input
+                                          id="edit-minNights"
+                                          type="number"
+                                          value={apartmentForm.minNights ?? ""}
+                                          onChange={(e) => setApartmentForm({ 
+                                            ...apartmentForm, 
+                                            minNights: e.target.value ? parseInt(e.target.value) : undefined 
+                                          })}
+                                          placeholder="Min nights"
+                                          min="1"
+                                        />
+                                      </div>
+                                      <div>
+                                        <label htmlFor="edit-maxNights" className="text-sm font-medium text-gray-700 mb-1 block">
+                                          Maximum Nights
+                                        </label>
+                                        <Input
+                                          id="edit-maxNights"
+                                          type="number"
+                                          value={apartmentForm.maxNights ?? ""}
+                                          onChange={(e) => setApartmentForm({ 
+                                            ...apartmentForm, 
+                                            maxNights: e.target.value ? parseInt(e.target.value) : undefined 
+                                          })}
+                                          placeholder="Max nights"
+                                          min="1"
+                                        />
+                                      </div>
+                                    </div>
+                                  )}
+                                  
                                   <div>
                                     <label htmlFor="edit-images" className="text-sm font-medium text-gray-700 mb-1 block">
                                       Image URLs
@@ -389,7 +568,7 @@ const AdminDashboard: React.FC = () => {
                               onClick={() => {
                                 if (confirm("Are you sure you want to delete this apartment?")) {
                                   deleteApartment(apartment.id);
-                                  toast.success("Appartement supprimé avec succès!");
+                                  toast.success("Apartment deleted successfully!");
                                 }
                               }}
                             >
@@ -402,11 +581,30 @@ const AdminDashboard: React.FC = () => {
                           <span>{apartment.location}</span>
                         </div>
                         <p className="text-gray-600 mb-4 line-clamp-2">{apartment.description}</p>
-                        <div className="flex justify-between">
-                          <span className="font-medium">{apartment.price} Dh par nuitée</span>
-                          <span className="text-sm text-gray-500">
-                            {getApartmentBookingPeriods(apartment.id).filter(p => !p.isBooked).length} Périodes disponibles
-                          </span>
+                        <div className="flex justify-between items-center">
+                          <span className="font-medium">{apartment.price} Dh per night</span>
+                          <div className="flex flex-col items-end">
+                            <span className={`px-2 py-1 text-xs font-medium rounded ${
+                              apartment.bookingType === 'normal' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'
+                            }`}>
+                              {apartment.bookingType === 'normal' ? 'Normal booking' : 'Period booking'}
+                            </span>
+                            {apartment.bookingType === 'normal' && (
+                              <span className="text-xs text-gray-500 mt-1">
+                                {apartment.minNights && apartment.maxNights ? 
+                                  `${apartment.minNights}-${apartment.maxNights} nights` : 
+                                  apartment.minNights ? 
+                                    `Min: ${apartment.minNights} nights` : 
+                                    apartment.maxNights ? 
+                                      `Max: ${apartment.maxNights} nights` : ""}
+                              </span>
+                            )}
+                            {apartment.bookingType === 'period' && (
+                              <span className="text-xs text-gray-500 mt-1">
+                                {getApartmentBookingPeriods(apartment.id).filter(p => !p.isBooked).length} periods available
+                              </span>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -445,12 +643,19 @@ const AdminDashboard: React.FC = () => {
                         onChange={(e) => setPeriodApartmentId(e.target.value)}
                       >
                         <option value="">Select an apartment</option>
-                        {apartments.map((apt) => (
-                          <option key={apt.id} value={apt.id}>
-                            {apt.name}
-                          </option>
-                        ))}
+                        {apartments
+                          .filter(apt => apt.bookingType === 'period')
+                          .map((apt) => (
+                            <option key={apt.id} value={apt.id}>
+                              {apt.name} - {apt.bookingType === 'period' ? 'Period booking' : 'Normal booking'}
+                            </option>
+                          ))}
                       </select>
+                      {periodApartmentId && apartments.find(apt => apt.id === periodApartmentId)?.bookingType !== 'period' && (
+                        <p className="text-red-500 text-sm mt-1">
+                          Periods can only be added to apartments with "Period booking" type.
+                        </p>
+                      )}
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
@@ -516,81 +721,85 @@ const AdminDashboard: React.FC = () => {
                     <Button variant="outline" onClick={() => setIsAddingPeriod(false)}>
                       Cancel
                     </Button>
-                    <Button onClick={handleAddBookingPeriod}>Add Period</Button>
+                    <Button onClick={handleAddBookingPeriod} disabled={!periodApartmentId || apartments.find(apt => apt.id === periodApartmentId)?.bookingType !== 'period'}>
+                      Add Period
+                    </Button>
                   </DialogFooter>
                 </DialogContent>
               </Dialog>
             </div>
 
-            {apartments.length === 0 ? (
+            {apartments.filter(apt => apt.bookingType === 'period').length === 0 ? (
               <div className="text-center py-12 bg-gray-50 rounded-lg">
-                <p className="text-gray-500">No apartments added yet. Add an apartment first.</p>
+                <p className="text-gray-500">No apartments with period booking type added yet.</p>
               </div>
             ) : (
-              apartments.map((apartment) => {
-                const periods = getApartmentBookingPeriods(apartment.id);
-                
-                return (
-                  <Card key={apartment.id} className="mb-6">
-                    <CardHeader>
-                      <CardTitle>{apartment.name}</CardTitle>
-                      <CardDescription>{apartment.location}</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      {periods.length === 0 ? (
-                        <div className="text-center py-6 bg-gray-50 rounded-lg">
-                          <p className="text-gray-500">No booking periods added for this apartment.</p>
-                        </div>
-                      ) : (
-                        <div className="divide-y">
-                          {periods.map((period) => (
-                            <div key={period.id} className="py-3 flex items-center justify-between">
-                              <div className="flex items-center space-x-2">
-                                <CalendarIcon className="h-4 w-4 text-gray-500" />
-                                <span>
-                                  {format(new Date(period.startDate), "MMM dd")} - {format(new Date(period.endDate), "MMM dd, yyyy")}
-                                </span>
+              apartments
+                .filter(apt => apt.bookingType === 'period')
+                .map((apartment) => {
+                  const periods = getApartmentBookingPeriods(apartment.id);
+                  
+                  return (
+                    <Card key={apartment.id} className="mb-6">
+                      <CardHeader>
+                        <CardTitle>{apartment.name}</CardTitle>
+                        <CardDescription>{apartment.location}</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        {periods.length === 0 ? (
+                          <div className="text-center py-6 bg-gray-50 rounded-lg">
+                            <p className="text-gray-500">No booking periods added for this apartment.</p>
+                          </div>
+                        ) : (
+                          <div className="divide-y">
+                            {periods.map((period) => (
+                              <div key={period.id} className="py-3 flex items-center justify-between">
+                                <div className="flex items-center space-x-2">
+                                  <CalendarIcon className="h-4 w-4 text-gray-500" />
+                                  <span>
+                                    {format(new Date(period.startDate), "MMM dd")} - {format(new Date(period.endDate), "MMM dd, yyyy")}
+                                  </span>
+                                </div>
+                                <div className="flex items-center space-x-3">
+                                  <span className={`px-2 py-1 text-xs font-medium rounded ${period.isBooked ? 'bg-orange-100 text-orange-800' : 'bg-green-100 text-green-800'}`}>
+                                    {period.isBooked ? "Booked" : "Available"}
+                                  </span>
+                                  {!period.isBooked && (
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => {
+                                        if (confirm("Are you sure you want to delete this booking period?")) {
+                                          deleteBookingPeriod(period.id);
+                                          toast.success("Booking period deleted successfully!");
+                                        }
+                                      }}
+                                    >
+                                      <Trash className="h-4 w-4" />
+                                    </Button>
+                                  )}
+                                </div>
                               </div>
-                              <div className="flex items-center space-x-3">
-                                <span className={`px-2 py-1 text-xs font-medium rounded ${period.isBooked ? 'bg-orange-100 text-orange-800' : 'bg-green-100 text-green-800'}`}>
-                                  {period.isBooked ? "Booked" : "Available"}
-                                </span>
-                                {!period.isBooked && (
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => {
-                                      if (confirm("Are you sure you want to delete this booking period?")) {
-                                        deleteBookingPeriod(period.id);
-                                        toast.success("Booking period deleted successfully!");
-                                      }
-                                    }}
-                                  >
-                                    <Trash className="h-4 w-4" />
-                                  </Button>
-                                )}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </CardContent>
-                    <CardFooter>
-                      <Button
-                        variant="outline"
-                        className="w-full"
-                        onClick={() => {
-                          setPeriodApartmentId(apartment.id);
-                          setIsAddingPeriod(true);
-                        }}
-                      >
-                        <Plus className="mr-2 h-4 w-4" />
-                        Add Period for {apartment.name}
-                      </Button>
-                    </CardFooter>
-                  </Card>
-                );
-              })
+                            ))}
+                          </div>
+                        )}
+                      </CardContent>
+                      <CardFooter>
+                        <Button
+                          variant="outline"
+                          className="w-full"
+                          onClick={() => {
+                            setPeriodApartmentId(apartment.id);
+                            setIsAddingPeriod(true);
+                          }}
+                        >
+                          <Plus className="mr-2 h-4 w-4" />
+                          Add Period for {apartment.name}
+                        </Button>
+                      </CardFooter>
+                    </Card>
+                  );
+                })
             )}
           </TabsContent>
 
@@ -598,13 +807,14 @@ const AdminDashboard: React.FC = () => {
           <TabsContent value="reservations">
             <h2 className="text-xl font-semibold mb-6">Manage Reservations</h2>
 
-            {bookings.length === 0 ? (
+            {bookings.length === 0 && normalBookings.length === 0 ? (
               <div className="text-center py-12 bg-gray-50 rounded-lg">
                 <p className="text-gray-500">No reservations have been made yet.</p>
               </div>
             ) : (
               <ReservationsTable 
                 bookings={bookings}
+                normalBookings={normalBookings}
                 apartments={apartments}
                 bookingPeriods={bookingPeriods}
               />
