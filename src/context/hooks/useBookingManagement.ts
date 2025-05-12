@@ -1,4 +1,3 @@
-
 import { Booking, NormalBooking } from "@/types";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -168,12 +167,12 @@ export const useBookingManagement = (
 
   const isNormalDateRangeAvailable = async (apartmentId: string, startDate: Date, endDate: Date): Promise<boolean> => {
     try {
-      // Check for overlapping bookings
+      // Check for overlapping bookings using a more precise query
       const { data, error } = await supabase
         .from('normal_bookings')
         .select('*')
         .eq('apartment_id', apartmentId)
-        .or(`start_date.lt.${endDate.toISOString()},end_date.gt.${startDate.toISOString()}`);
+        .or(`start_date,lte,${endDate.toISOString()},end_date,gte,${startDate.toISOString()}`);
       
       if (error) throw error;
       
