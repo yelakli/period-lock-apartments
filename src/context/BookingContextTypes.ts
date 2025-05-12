@@ -14,7 +14,11 @@ export interface BookingContextType {
   addBookingPeriod: (period: Omit<BookingPeriod, "id">) => Promise<void>;
   deleteBookingPeriod: (id: string) => Promise<void>;
   createBooking: (booking: Omit<Booking, "id" | "bookingDate">) => Promise<void>;
-  createNormalBooking: (booking: Omit<NormalBooking, "id" | "bookingDate">) => Promise<void>;
+  createNormalBooking: (booking: Omit<NormalBooking, "id" | "bookingDate">) => Promise<{
+    success: boolean;
+    booking?: NormalBooking;
+    error?: any;
+  }>;
   getApartmentBookingPeriods: (apartmentId: string) => BookingPeriod[];
   getAvailableBookingPeriods: (apartmentId: string) => BookingPeriod[];
   isNormalDateRangeAvailable: (apartmentId: string, startDate: Date, endDate: Date) => Promise<boolean>;

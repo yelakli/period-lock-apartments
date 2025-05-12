@@ -122,7 +122,7 @@ const ApartmentDetails = () => {
     navigate("/");
   };
   
-  const handleSubmitNormalBooking = (e: React.FormEvent) => {
+  const handleSubmitNormalBooking = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!startDate || !endDate || !userName || !userEmail || !userPhone) {
@@ -135,7 +135,7 @@ const ApartmentDetails = () => {
       return;
     }
     
-    createNormalBooking({
+    const result = await createNormalBooking({
       apartmentId: id || "",
       userName,
       userEmail,
@@ -144,8 +144,13 @@ const ApartmentDetails = () => {
       endDate
     });
     
-    toast.success("Reservation made successfully!");
-    navigate("/");
+    if (result.success) {
+      toast.success("Reservation made successfully!");
+      navigate("/");
+    } else {
+      toast.error("Failed to create booking. Please try again.");
+      console.error("Booking creation failed:", result.error);
+    }
   };
   
   if (!apartment) {
