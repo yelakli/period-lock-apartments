@@ -205,7 +205,7 @@ const NormalBookingForm: React.FC<NormalBookingFormProps> = ({
               </Button>
             </div>
             
-            {isDateRangeAvailable !== null && (
+            {isDateRangeAvailable == null && (
               <div className={`mt-2 text-center text-sm ${isDateRangeAvailable ? 'text-green-600' : 'text-red-600'}`}>
                 {isDateRangeAvailable ? "✓ Available for booking" : "✗ Not available for the selected dates"}
               </div>
