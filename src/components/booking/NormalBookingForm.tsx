@@ -116,6 +116,14 @@ const NormalBookingForm: React.FC<NormalBookingFormProps> = ({
     
     if (result.success) {
       toast.success("Reservation made successfully!");
+       // Reset form states
+      setStartDate(undefined);
+      setEndDate(undefined);
+      setUserName("");
+      setUserEmail("");
+      setUserPhone("");
+      setIsDateRangeAvailable(null);
+
       navigate("/");
     } else {
       toast.error("Failed to create booking. Please try again.");
@@ -205,7 +213,7 @@ const NormalBookingForm: React.FC<NormalBookingFormProps> = ({
               </Button>
             </div>
             
-            {isDateRangeAvailable && (
+            {isDateRangeAvailable !==null && (
               <div className={`mt-2 text-center text-sm ${isDateRangeAvailable ? 'text-green-600' : 'text-red-600'}`}>
                 {isDateRangeAvailable ? "✓ Available for booking" : "✗ Not available for the selected dates"}
               </div>
