@@ -18,6 +18,7 @@ export interface BookingContextType {
   getApartmentBookingPeriods: (apartmentId: string) => BookingPeriod[];
   getAvailableBookingPeriods: (apartmentId: string) => BookingPeriod[];
   isNormalDateRangeAvailable: (apartmentId: string, startDate: Date, endDate: Date) => Promise<boolean>;
+  testNormalBooking: (apartmentId: string) => Promise<boolean>;
   isAdminLoggedIn: boolean;
   adminLogin: (username: string, password: string) => Promise<boolean>;
   adminLogout: () => Promise<void>;

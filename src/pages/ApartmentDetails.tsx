@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -25,6 +24,7 @@ import { MapPin, Calendar as CalendarIcon } from "lucide-react";
 import { format, addDays, differenceInDays } from "date-fns";
 import { formatCurrency } from "@/utils/format";
 import { cn } from "@/lib/utils";
+import BookingTester from "@/components/reservations/BookingTester";
 
 const ApartmentDetails = () => {
   const { id } = useParams<{ id: string }>();
@@ -34,7 +34,8 @@ const ApartmentDetails = () => {
     getAvailableBookingPeriods, 
     createBooking,
     createNormalBooking,
-    isNormalDateRangeAvailable
+    isNormalDateRangeAvailable,
+    isAdminLoggedIn
   } = useBooking();
   
   const apartment = apartments.find((a) => a.id === id);
@@ -192,6 +193,14 @@ const ApartmentDetails = () => {
               <h2 className="text-xl font-semibold text-gray-900 mb-3">About</h2>
               <p className="text-gray-600 whitespace-pre-line">{apartment.description}</p>
             </div>
+            
+            {/* Admin testing section */}
+            {isAdminLoggedIn && apartment.bookingType === "normal" && (
+              <div className="bg-slate-50 p-4 border rounded-md mb-8">
+                <h3 className="text-lg font-medium mb-2">Admin Tools</h3>
+                <BookingTester apartmentId={apartment.id} />
+              </div>
+            )}
           </div>
           
           <div>

@@ -46,7 +46,8 @@ export const BookingProvider: React.FC<{children: ReactNode}> = ({ children }) =
     fetchNormalBookings,
     createBooking,
     createNormalBooking,
-    isNormalDateRangeAvailable
+    isNormalDateRangeAvailable,
+    testNormalBooking
   } = useBookingManagement(bookings, setBookings, normalBookings, setNormalBookings, bookingPeriods, setBookingPeriods);
 
   // Fetch data from Supabase on component mount
@@ -77,6 +78,7 @@ export const BookingProvider: React.FC<{children: ReactNode}> = ({ children }) =
         getApartmentBookingPeriods,
         getAvailableBookingPeriods,
         isNormalDateRangeAvailable,
+        testNormalBooking,
         isAdminLoggedIn,
         adminLogin,
         adminLogout,

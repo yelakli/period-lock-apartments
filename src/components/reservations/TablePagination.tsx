@@ -57,10 +57,32 @@ const TablePagination: React.FC<TablePaginationProps> = ({
       }
       
       // Always show last page
-      pages.push(totalPages);
+      if (totalPages > 1) {
+        pages.push(totalPages);
+      }
     }
     
     return pages;
+  };
+
+  // Accessibility improved pagination navigation
+  const handleNextPage = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (currentPage < totalPages) {
+      onPageChange(currentPage + 1);
+    }
+  };
+
+  const handlePrevPage = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (currentPage > 1) {
+      onPageChange(currentPage - 1);
+    }
+  };
+
+  const handlePageClick = (page: number, e: React.MouseEvent) => {
+    e.preventDefault();
+    onPageChange(page);
   };
 
   return (
@@ -68,8 +90,9 @@ const TablePagination: React.FC<TablePaginationProps> = ({
       <PaginationContent>
         <PaginationItem>
           <PaginationPrevious 
-            onClick={() => onPageChange(Math.max(1, currentPage - 1))}
+            onClick={handlePrevPage}
             className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+            aria-disabled={currentPage === 1}
           />
         </PaginationItem>
         
@@ -89,8 +112,9 @@ const TablePagination: React.FC<TablePaginationProps> = ({
               <PaginationItem>
                 <PaginationLink
                   isActive={page === currentPage}
-                  onClick={() => onPageChange(page)}
+                  onClick={(e) => handlePageClick(page, e)}
                   className="cursor-pointer"
+                  aria-current={page === currentPage ? "page" : undefined}
                 >
                   {page}
                 </PaginationLink>
@@ -101,8 +125,9 @@ const TablePagination: React.FC<TablePaginationProps> = ({
         
         <PaginationItem>
           <PaginationNext 
-            onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
+            onClick={handleNextPage}
             className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+            aria-disabled={currentPage === totalPages}
           />
         </PaginationItem>
       </PaginationContent>
