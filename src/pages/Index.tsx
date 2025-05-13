@@ -122,15 +122,7 @@ const Index = () => {
                       <div className="text-lg font-semibold text-gray-900">
                         {formatCurrency(apartment.price)} <span className="text-sm font-normal text-gray-500">Dh/nuitée</span>
                       </div>
-                      <Badge variant={isAvailable ? "outline" : "secondary"}>
-                        {apartment.bookingType === 'period' ? (
-                          availablePeriods.length > 0
-                            ? `${availablePeriods.length} Period${availablePeriods.length === 1 ? "" : "s"} Available`
-                            : "Aucune période disponible"
-                        ) : (
-                          "Check Availability"
-                        )}
-                      </Badge>
+                     
                     </CardFooter>
                   </Card>
                 </Link>
