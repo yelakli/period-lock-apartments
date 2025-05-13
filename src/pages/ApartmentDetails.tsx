@@ -19,6 +19,7 @@ const ApartmentDetails = () => {
     createBooking,
     createNormalBooking,
     isNormalDateRangeAvailable,
+    getBookedDatesForApartment,
     isAdminLoggedIn
   } = useBooking();
   
@@ -73,6 +74,7 @@ const ApartmentDetails = () => {
                     minNights={apartment.minNights}
                     maxNights={apartment.maxNights}
                     isNormalDateRangeAvailable={isNormalDateRangeAvailable}
+                    getBookedDatesForApartment={getBookedDatesForApartment}
                     createNormalBooking={createNormalBooking}
                   />
                 )}

@@ -47,6 +47,7 @@ export const BookingProvider: React.FC<{children: ReactNode}> = ({ children }) =
     createBooking,
     createNormalBooking,
     isNormalDateRangeAvailable,
+    getBookedDatesForApartment,
     testNormalBooking
   } = useBookingManagement(bookings, setBookings, normalBookings, setNormalBookings, bookingPeriods, setBookingPeriods);
 
@@ -78,6 +79,7 @@ export const BookingProvider: React.FC<{children: ReactNode}> = ({ children }) =
         getApartmentBookingPeriods,
         getAvailableBookingPeriods,
         isNormalDateRangeAvailable,
+        getBookedDatesForApartment,
         testNormalBooking,
         isAdminLoggedIn,
         adminLogin,

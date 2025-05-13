@@ -1,7 +1,7 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { format, differenceInDays } from "date-fns";
+import { format, differenceInDays, isSameDay } from "date-fns";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -21,6 +21,7 @@ interface NormalBookingFormProps {
   minNights?: number;
   maxNights?: number;
   isNormalDateRangeAvailable: (apartmentId: string, startDate: Date, endDate: Date) => Promise<boolean>;
+  getBookedDatesForApartment: (apartmentId: string) => Promise<Date[]>;
   createNormalBooking: (booking: any) => Promise<{
     success: boolean;
     booking?: any;
@@ -34,6 +35,7 @@ const NormalBookingForm: React.FC<NormalBookingFormProps> = ({
   minNights,
   maxNights,
   isNormalDateRangeAvailable,
+  getBookedDatesForApartment,
   createNormalBooking
 }) => {
   const navigate = useNavigate();
@@ -46,6 +48,8 @@ const NormalBookingForm: React.FC<NormalBookingFormProps> = ({
   const [userName, setUserName] = useState("");
   const [userEmail, setUserEmail] = useState("");
   const [userPhone, setUserPhone] = useState("");
+  const [bookedDates, setBookedDates] = useState<Date[]>([]);
+  const [isLoadingDates, setIsLoadingDates] = useState(true);
   
   // Calculate the number of nights for normal booking
   const nightsCount = startDate && endDate ? 
@@ -53,6 +57,24 @@ const NormalBookingForm: React.FC<NormalBookingFormProps> = ({
 
   // Calculate the total price for normal booking
   const totalPrice = apartmentPrice && nightsCount ? apartmentPrice * nightsCount : 0;
+
+  // Load booked dates when component mounts
+  useEffect(() => {
+    const loadBookedDates = async () => {
+      setIsLoadingDates(true);
+      try {
+        const dates = await getBookedDatesForApartment(apartmentId);
+        setBookedDates(dates);
+      } catch (error) {
+        console.error("Failed to load booked dates:", error);
+        toast.error("Failed to load availability information");
+      } finally {
+        setIsLoadingDates(false);
+      }
+    };
+
+    loadBookedDates();
+  }, [apartmentId, getBookedDatesForApartment]);
   
   const handleCheckAvailability = async () => {
     if (!startDate || !endDate || !apartmentId) return;
@@ -61,12 +83,28 @@ const NormalBookingForm: React.FC<NormalBookingFormProps> = ({
     try {
       const isAvailable = await isNormalDateRangeAvailable(apartmentId, startDate, endDate);
       setIsDateRangeAvailable(isAvailable);
+      
+      if (!isAvailable) {
+        toast.error("Selected dates are already booked");
+      }
     } catch (error) {
       console.error("Error checking availability:", error);
       toast.error("Failed to check availability");
     } finally {
       setIsCheckingAvailability(false);
     }
+  };
+  
+  const isDayDisabled = (date: Date) => {
+    // Disable dates in the past
+    if (date < new Date(new Date().setHours(0, 0, 0, 0))) {
+      return true;
+    }
+    
+    // Disable already booked dates
+    return bookedDates.some(bookedDate => 
+      isSameDay(new Date(bookedDate), date)
+    );
   };
 
   const handleDateSelect = (date: Date | undefined) => {
@@ -80,6 +118,37 @@ const NormalBookingForm: React.FC<NormalBookingFormProps> = ({
     } else {
       // If only the start date is selected and the new date is after the start date
       if (date > startDate) {
+        // Check if the selected range includes any disabled dates
+        let containsDisabledDate = false;
+        let currentDate = new Date(startDate);
+        
+        while (currentDate <= date) {
+          if (isDayDisabled(currentDate) && !isSameDay(currentDate, startDate)) {
+            containsDisabledDate = true;
+            break;
+          }
+          currentDate.setDate(currentDate.getDate() + 1);
+        }
+        
+        if (containsDisabledDate) {
+          toast.error("Your selected range includes already booked dates");
+          return;
+        }
+        
+        // Calculate nights between selected dates
+        const nights = differenceInDays(date, startDate);
+        
+        // Check min/max night constraints
+        if (minNights && nights < minNights) {
+          toast.error(`Minimum stay is ${minNights} nights`);
+          return;
+        }
+        
+        if (maxNights && nights > maxNights) {
+          toast.error(`Maximum stay is ${maxNights} nights`);
+          return;
+        }
+        
         setEndDate(date);
         // Reset availability until checked
         setIsDateRangeAvailable(null);
@@ -116,7 +185,17 @@ const NormalBookingForm: React.FC<NormalBookingFormProps> = ({
     
     if (result.success) {
       toast.success("Reservation made successfully!");
-       // Reset form states
+      
+      // Update booked dates after successful booking
+      const updatedBookedDates = [...bookedDates];
+      let currentDate = new Date(startDate);
+      while (currentDate <= endDate) {
+        updatedBookedDates.push(new Date(currentDate));
+        currentDate.setDate(currentDate.getDate() + 1);
+      }
+      setBookedDates(updatedBookedDates);
+      
+      // Reset form states
       setStartDate(undefined);
       setEndDate(undefined);
       setUserName("");
@@ -170,14 +249,18 @@ const NormalBookingForm: React.FC<NormalBookingFormProps> = ({
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-0">
-            <Calendar
-              mode="single"
-              selected={startDate}
-              onSelect={handleDateSelect}
-              initialFocus
-              disabled={(date) => date < new Date()}
-              className={cn("p-3 pointer-events-auto")}
-            />
+            {isLoadingDates ? (
+              <div className="p-4 text-center">Loading available dates...</div>
+            ) : (
+              <Calendar
+                mode="single"
+                selected={startDate}
+                onSelect={handleDateSelect}
+                initialFocus
+                disabled={isDayDisabled}
+                className={cn("p-3 pointer-events-auto")}
+              />
+            )}
             {startDate && !endDate && (
               <div className="px-4 py-2 border-t text-sm text-muted-foreground">
                 Select an end date
@@ -185,6 +268,11 @@ const NormalBookingForm: React.FC<NormalBookingFormProps> = ({
             )}
           </PopoverContent>
         </Popover>
+        {bookedDates.length > 0 && (
+          <div className="text-xs text-amber-600">
+            Note: Calendar shows only available dates. Booked dates are disabled.
+          </div>
+        )}
       </div>
       
       {startDate && endDate && (

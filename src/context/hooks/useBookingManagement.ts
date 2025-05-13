@@ -1,6 +1,8 @@
+
 import { Booking, NormalBooking } from "@/types";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { format } from "date-fns";
 
 export const useBookingManagement = (
   bookings: Booking[],
@@ -167,20 +169,57 @@ export const useBookingManagement = (
 
   const isNormalDateRangeAvailable = async (apartmentId: string, startDate: Date, endDate: Date): Promise<boolean> => {
     try {
-      // Check for overlapping bookings using a more precise query
+      // Fix the query to properly check for overlapping bookings
       const { data, error } = await supabase
         .from('normal_bookings')
         .select('*')
         .eq('apartment_id', apartmentId)
-        .or(`start_date,lte,${endDate.toISOString()},end_date,gte,${startDate.toISOString()}`);
+        .or(`start_date,lt.${endDate.toISOString()},end_date,gt.${startDate.toISOString()}`);
       
-      if (error) throw error;
+      if (error) {
+        console.error("Error checking date range availability:", error);
+        throw error;
+      }
       
       // If there are any overlapping bookings, the date range is not available
       return data.length === 0;
     } catch (error) {
       console.error("Error checking date range availability:", error);
       return false;
+    }
+  };
+
+  const getBookedDatesForApartment = async (apartmentId: string): Promise<Date[]> => {
+    try {
+      const { data, error } = await supabase
+        .from('normal_bookings')
+        .select('start_date, end_date')
+        .eq('apartment_id', apartmentId);
+      
+      if (error) {
+        console.error("Error fetching booked dates:", error);
+        throw error;
+      }
+
+      // Create an array of all booked dates (including dates between start and end)
+      const bookedDates: Date[] = [];
+      
+      for (const booking of data) {
+        const startDate = new Date(booking.start_date);
+        const endDate = new Date(booking.end_date);
+        
+        // Add all dates between start and end (inclusive)
+        let currentDate = new Date(startDate);
+        while (currentDate <= endDate) {
+          bookedDates.push(new Date(currentDate));
+          currentDate.setDate(currentDate.getDate() + 1);
+        }
+      }
+      
+      return bookedDates;
+    } catch (error) {
+      console.error("Error getting booked dates:", error);
+      return [];
     }
   };
 
@@ -225,6 +264,7 @@ export const useBookingManagement = (
     createBooking,
     createNormalBooking,
     isNormalDateRangeAvailable,
+    getBookedDatesForApartment,
     testNormalBooking
   };
 };
