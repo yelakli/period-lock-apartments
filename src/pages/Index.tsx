@@ -43,15 +43,6 @@ const Index = () => {
           <p className="text-left">- La réservation n'est considérée comme définitive que si la contribution du participant est intégralement réglée.</p>
         </div>
 
-        <div className="mb-6">
-          <Input
-            type="search"
-            placeholder="Search apartments by name, location or description..."
-            className="max-w-md mx-auto"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </div>
 
         {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -107,7 +98,7 @@ const Index = () => {
                       )}
                       <div className="absolute top-2 right-2">
                         <Badge variant="outline" className={`${apartment.bookingType === 'normal' ? 'bg-purple-100 text-purple-800 border-purple-200' : 'bg-blue-100 text-blue-800 border-blue-200'}`}>
-                          {apartment.bookingType === 'normal' ? 'Normal booking' : 'Period booking'}
+                          {apartment.bookingType === 'normal' ? 'Réservation normale' : 'Réservation périodique'}
                         </Badge>
                       </div>
                     </div>
@@ -122,20 +113,20 @@ const Index = () => {
                       {apartment.bookingType === 'normal' && apartment.minNights && apartment.maxNights && (
                         <p className="text-sm text-gray-500 mt-2">
                           {apartment.minNights === apartment.maxNights 
-                            ? `${apartment.minNights} nights stay required` 
-                            : `${apartment.minNights}-${apartment.maxNights} nights stay`}
+                            ? `${apartment.minNights} nuitées requises` 
+                            : `${apartment.minNights}-${apartment.maxNights} nuitées restantes`}
                         </p>
                       )}
                     </CardContent>
                     <CardFooter className="flex items-center justify-between border-t pt-4">
                       <div className="text-lg font-semibold text-gray-900">
-                        {formatCurrency(apartment.price)} <span className="text-sm font-normal text-gray-500">Dh/night</span>
+                        {formatCurrency(apartment.price)} <span className="text-sm font-normal text-gray-500">Dh/nuitée</span>
                       </div>
                       <Badge variant={isAvailable ? "outline" : "secondary"}>
                         {apartment.bookingType === 'period' ? (
                           availablePeriods.length > 0
                             ? `${availablePeriods.length} Period${availablePeriods.length === 1 ? "" : "s"} Available`
-                            : "No Periods Available"
+                            : "Aucune période disponible"
                         ) : (
                           "Check Availability"
                         )}

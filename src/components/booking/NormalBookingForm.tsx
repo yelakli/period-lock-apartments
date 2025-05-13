@@ -45,7 +45,6 @@ const NormalBookingForm: React.FC<NormalBookingFormProps> = ({
   const [endDate, setEndDate] = useState<Date | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(false);
   const [userName, setUserName] = useState("");
-  const [userEmail, setUserEmail] = useState("");
   const [userPhone, setUserPhone] = useState("");
   const [bookedDates, setBookedDates] = useState<Date[]>([]);
   const [isLoadingDates, setIsLoadingDates] = useState(true);
@@ -119,12 +118,12 @@ const NormalBookingForm: React.FC<NormalBookingFormProps> = ({
         
         // Check min/max night constraints
         if (minNights && nights < minNights) {
-          toast.error(`Minimum stay is ${minNights} nights`);
+          toast.error(`Minimum reservation ${minNights} nuitées`);
           return;
         }
         
         if (maxNights && nights > maxNights) {
-          toast.error(`Maximum stay is ${maxNights} nights`);
+          toast.error(`Maximum reservation ${maxNights} nuitées`);
           return;
         }
         
@@ -140,8 +139,8 @@ const NormalBookingForm: React.FC<NormalBookingFormProps> = ({
   const handleSubmitNormalBooking = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!startDate || !endDate || !userName || !userEmail || !userPhone) {
-      toast.error("Please fill in all fields");
+    if (!startDate || !endDate || !userName || !userPhone) {
+      toast.error("Remplissez tous les champs !");
       return;
     }
     
@@ -151,14 +150,13 @@ const NormalBookingForm: React.FC<NormalBookingFormProps> = ({
       const result = await createNormalBooking({
         apartmentId: apartmentId,
         userName,
-        userEmail,
         userPhone,
         startDate,
         endDate
       });
       
       if (result.success) {
-        toast.success("Reservation made successfully!");
+        toast.success("Reservation effectuée avec succès!");
         
         // Update booked dates after successful booking
         const updatedBookedDates = [...bookedDates];
@@ -173,7 +171,6 @@ const NormalBookingForm: React.FC<NormalBookingFormProps> = ({
         setStartDate(undefined);
         setEndDate(undefined);
         setUserName("");
-        setUserEmail("");
         setUserPhone("");
         
         navigate("/");
@@ -197,11 +194,11 @@ const NormalBookingForm: React.FC<NormalBookingFormProps> = ({
         </label>
         <div className="text-xs text-gray-500 mb-2">
           {minNights && maxNights ? 
-            `Min: ${minNights} nights | Max: ${maxNights} nights` : 
+            `Min: ${minNights} nights | Max: ${maxNights} nuitées` : 
             minNights ? 
-              `Min: ${minNights} nights` : 
+              `Min: ${minNights} nuitées` : 
               maxNights ? 
-                `Max: ${maxNights} nights` : ""}
+                `Max: ${maxNights} nuitées` : ""}
         </div>
         
         <Popover>
@@ -242,14 +239,14 @@ const NormalBookingForm: React.FC<NormalBookingFormProps> = ({
             )}
             {startDate && !endDate && (
               <div className="px-4 py-2 border-t text-sm text-muted-foreground">
-                Select an end date
+                Séléctionnez la date de sortie
               </div>
             )}
           </PopoverContent>
         </Popover>
         {bookedDates.length > 0 && (
           <div className="text-xs text-amber-600">
-            Note: Calendar shows only available dates. Booked dates are disabled.
+            Note: Le calendrier montre uniquement les dates disponibles. Les dates réservées sont grisées.
           </div>
         )}
       </div>
@@ -264,20 +261,20 @@ const NormalBookingForm: React.FC<NormalBookingFormProps> = ({
                   {format(startDate, "MMMM dd")} - {format(endDate, "MMMM dd, yyyy")}
                 </p>
                 <p className="text-sm text-blue-600">
-                  {nightsCount} nights
+                  {nightsCount} nuitées
                 </p>
               </div>
             </div>
             
             <div className="mt-2 text-center text-sm text-green-600">
-              ✓ Available for booking
+              ✓ Réservation disponible
             </div>
           </div>
           
           <div className="border-t pt-4 mt-4">
             <div className="flex justify-between mb-2">
               <span className="text-gray-600">
-                {formatCurrency(apartmentPrice)} DH x {nightsCount} nights
+                {formatCurrency(apartmentPrice)} DH x {nightsCount} nuitées
               </span>
               <span className="font-medium">
                 {formatCurrency(totalPrice)} DH
@@ -293,45 +290,33 @@ const NormalBookingForm: React.FC<NormalBookingFormProps> = ({
           <div className="space-y-4 pt-2">
             <div>
               <label htmlFor="normalName" className="text-sm font-medium text-gray-700">
-                Full Name
+                Nom et Prénom
               </label>
               <Input
                 id="normalName"
                 value={userName}
                 onChange={(e) => setUserName(e.target.value)}
-                placeholder="Enter your full name"
+                placeholder="Entrez votre nom et prénom"
               />
             </div>
             
-            <div>
-              <label htmlFor="normalEmail" className="text-sm font-medium text-gray-700">
-                Email
-              </label>
-              <Input
-                id="normalEmail"
-                type="email"
-                value={userEmail}
-                onChange={(e) => setUserEmail(e.target.value)}
-                placeholder="Enter your email"
-              />
-            </div>
             
             <div>
               <label htmlFor="normalPhone" className="text-sm font-medium text-gray-700">
-                Phone Number
+                Numéro de Téléphone
               </label>
               <Input
                 id="normalPhone"
                 value={userPhone}
                 onChange={(e) => setUserPhone(e.target.value)}
-                placeholder="Enter your phone number"
+                placeholder="Entrez votre numéro de téléphone"
               />
             </div>
             
             <Button 
               type="submit" 
               className="w-full"
-              disabled={isLoading || !startDate || !endDate || !userName || !userEmail || !userPhone}
+              disabled={isLoading || !startDate || !endDate || !userName || !userPhone}
             >
               {isLoading ? "Processing..." : "Reserve"}
             </Button>

@@ -26,7 +26,6 @@ const PeriodBookingForm: React.FC<PeriodBookingFormProps> = ({
   const navigate = useNavigate();
   const [selectedPeriodId, setSelectedPeriodId] = useState("");
   const [userName, setUserName] = useState("");
-  const [userEmail, setUserEmail] = useState("");
   const [userPhone, setUserPhone] = useState("");
   
   const selectedPeriod = availablePeriods.find(period => period.id === selectedPeriodId);
@@ -34,8 +33,8 @@ const PeriodBookingForm: React.FC<PeriodBookingFormProps> = ({
   const handleSubmitPeriodBooking = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!selectedPeriodId || !userName || !userEmail || !userPhone) {
-      toast.error("Please fill in all fields");
+    if (!selectedPeriodId || !userName || !userPhone) {
+      toast.error("Remplissez tous les champs !");
       return;
     }
     
@@ -43,7 +42,6 @@ const PeriodBookingForm: React.FC<PeriodBookingFormProps> = ({
       periodId: selectedPeriodId,
       apartmentId: apartmentId,
       userName,
-      userEmail,
       userPhone
     });
     
@@ -59,19 +57,19 @@ const PeriodBookingForm: React.FC<PeriodBookingFormProps> = ({
     <form onSubmit={handleSubmitPeriodBooking} className="space-y-4">
       <div className="space-y-2">
         <label htmlFor="period" className="text-sm font-medium text-gray-700">
-          Select desired period
+          Selectionnez la période désirée
         </label>
         <Select
           value={selectedPeriodId}
           onValueChange={setSelectedPeriodId}
         >
           <SelectTrigger id="period" className="w-full">
-            <SelectValue placeholder="Choose your period" />
+            <SelectValue placeholder="Choisissez votre période" />
           </SelectTrigger>
           <SelectContent>
             {availablePeriods.length === 0 ? (
               <SelectItem value="none" disabled>
-                No periods available
+                Aucune période disponible
               </SelectItem>
             ) : (
               availablePeriods.map((period) => (
@@ -92,7 +90,7 @@ const PeriodBookingForm: React.FC<PeriodBookingFormProps> = ({
               {format(new Date(selectedPeriod.startDate), "MMMM dd")} - {format(new Date(selectedPeriod.endDate), "MMMM dd, yyyy")}
             </p>
             <p className="text-sm text-blue-600">
-              {calculateNights(new Date(selectedPeriod.startDate), new Date(selectedPeriod.endDate))} nights
+              {calculateNights(new Date(selectedPeriod.startDate), new Date(selectedPeriod.endDate))} nuitées
             </p>
           </div>
         </div>
@@ -101,38 +99,25 @@ const PeriodBookingForm: React.FC<PeriodBookingFormProps> = ({
       <div className="space-y-4 pt-2">
         <div>
           <label htmlFor="name" className="text-sm font-medium text-gray-700">
-            Full Name
+            Nom et Prénom
           </label>
           <Input
             id="name"
             value={userName}
             onChange={(e) => setUserName(e.target.value)}
-            placeholder="Enter your full name"
-          />
-        </div>
-        
-        <div>
-          <label htmlFor="email" className="text-sm font-medium text-gray-700">
-            Email
-          </label>
-          <Input
-            id="email"
-            type="email"
-            value={userEmail}
-            onChange={(e) => setUserEmail(e.target.value)}
-            placeholder="Enter your email"
+            placeholder="Entrez votre nom et prénom"
           />
         </div>
         
         <div>
           <label htmlFor="phone" className="text-sm font-medium text-gray-700">
-            Phone Number
+            Numéro de Téléphone
           </label>
           <Input
             id="phone"
             value={userPhone}
             onChange={(e) => setUserPhone(e.target.value)}
-            placeholder="Enter your phone number"
+            placeholder="Entrez votre numéro de téléphone"
           />
         </div>
       </div>
@@ -141,7 +126,7 @@ const PeriodBookingForm: React.FC<PeriodBookingFormProps> = ({
         <div className="border-t pt-4 mt-4">
           <div className="flex justify-between mb-2">
             <span className="text-gray-600">
-              {formatCurrency(apartmentPrice)} DH x {calculateNights(new Date(selectedPeriod.startDate), new Date(selectedPeriod.endDate))} nights
+              {formatCurrency(apartmentPrice)} DH x {calculateNights(new Date(selectedPeriod.startDate), new Date(selectedPeriod.endDate))} nuitées
             </span>
             <span className="font-medium">
               {formatCurrency(apartmentPrice * calculateNights(new Date(selectedPeriod.startDate), new Date(selectedPeriod.endDate)))} DH
@@ -162,7 +147,7 @@ const PeriodBookingForm: React.FC<PeriodBookingFormProps> = ({
       <Button 
         type="submit" 
         className="w-full"
-        disabled={!selectedPeriodId || !userName || !userEmail || !userPhone}
+        disabled={!selectedPeriodId || !userName || !userPhone}
       >
         Reserve
       </Button>
