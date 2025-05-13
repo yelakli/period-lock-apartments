@@ -119,7 +119,7 @@ const Index = () => {
                         <p className="text-sm text-gray-500 mt-2">
                           {apartment.minNights === apartment.maxNights 
                             ? `${apartment.minNights} nuitées requises` 
-                            : `${apartment.minNights}-${apartment.maxNights} nuitées restantes`}
+                            : `${apartment.minNights}-${apartment.maxNights} nuitées requises`}
                         </p>
                       )}
                     </CardFooter>
