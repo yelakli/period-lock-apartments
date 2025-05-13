@@ -43,8 +43,7 @@ const NormalBookingForm: React.FC<NormalBookingFormProps> = ({
   // State for normal booking
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
   const [endDate, setEndDate] = useState<Date | undefined>(undefined);
-  const [isCheckingAvailability, setIsCheckingAvailability] = useState(false);
-  const [isDateRangeAvailable, setIsDateRangeAvailable] = useState<boolean | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const [userName, setUserName] = useState("");
   const [userEmail, setUserEmail] = useState("");
   const [userPhone, setUserPhone] = useState("");
@@ -76,25 +75,6 @@ const NormalBookingForm: React.FC<NormalBookingFormProps> = ({
     loadBookedDates();
   }, [apartmentId, getBookedDatesForApartment]);
   
-  const handleCheckAvailability = async () => {
-    if (!startDate || !endDate || !apartmentId) return;
-    
-    setIsCheckingAvailability(true);
-    try {
-      const isAvailable = await isNormalDateRangeAvailable(apartmentId, startDate, endDate);
-      setIsDateRangeAvailable(isAvailable);
-      
-      if (!isAvailable) {
-        toast.error("Selected dates are already booked");
-      }
-    } catch (error) {
-      console.error("Error checking availability:", error);
-      toast.error("Failed to check availability");
-    } finally {
-      setIsCheckingAvailability(false);
-    }
-  };
-  
   const isDayDisabled = (date: Date) => {
     // Disable dates in the past
     if (date < new Date(new Date().setHours(0, 0, 0, 0))) {
@@ -114,7 +94,6 @@ const NormalBookingForm: React.FC<NormalBookingFormProps> = ({
       // If no start date is selected or both dates are selected, set the new date as the start date
       setStartDate(date);
       setEndDate(undefined);
-      setIsDateRangeAvailable(null);
     } else {
       // If only the start date is selected and the new date is after the start date
       if (date > startDate) {
@@ -150,13 +129,10 @@ const NormalBookingForm: React.FC<NormalBookingFormProps> = ({
         }
         
         setEndDate(date);
-        // Reset availability until checked
-        setIsDateRangeAvailable(null);
       } else {
         // If the new date is before or equal to the start date, update the start date
         setStartDate(date);
         setEndDate(undefined);
-        setIsDateRangeAvailable(null);
       }
     }
   };
@@ -169,44 +145,47 @@ const NormalBookingForm: React.FC<NormalBookingFormProps> = ({
       return;
     }
     
-    if (!isDateRangeAvailable) {
-      toast.error("Please check availability before booking");
-      return;
-    }
+    setIsLoading(true);
     
-    const result = await createNormalBooking({
-      apartmentId: apartmentId,
-      userName,
-      userEmail,
-      userPhone,
-      startDate,
-      endDate
-    });
-    
-    if (result.success) {
-      toast.success("Reservation made successfully!");
+    try {
+      const result = await createNormalBooking({
+        apartmentId: apartmentId,
+        userName,
+        userEmail,
+        userPhone,
+        startDate,
+        endDate
+      });
       
-      // Update booked dates after successful booking
-      const updatedBookedDates = [...bookedDates];
-      let currentDate = new Date(startDate);
-      while (currentDate <= endDate) {
-        updatedBookedDates.push(new Date(currentDate));
-        currentDate.setDate(currentDate.getDate() + 1);
+      if (result.success) {
+        toast.success("Reservation made successfully!");
+        
+        // Update booked dates after successful booking
+        const updatedBookedDates = [...bookedDates];
+        let currentDate = new Date(startDate);
+        while (currentDate <= endDate) {
+          updatedBookedDates.push(new Date(currentDate));
+          currentDate.setDate(currentDate.getDate() + 1);
+        }
+        setBookedDates(updatedBookedDates);
+        
+        // Reset form states
+        setStartDate(undefined);
+        setEndDate(undefined);
+        setUserName("");
+        setUserEmail("");
+        setUserPhone("");
+        
+        navigate("/");
+      } else {
+        toast.error("Failed to create booking. Please try again.");
+        console.error("Booking creation failed:", result.error);
       }
-      setBookedDates(updatedBookedDates);
-      
-      // Reset form states
-      setStartDate(undefined);
-      setEndDate(undefined);
-      setUserName("");
-      setUserEmail("");
-      setUserPhone("");
-      setIsDateRangeAvailable(null);
-
-      navigate("/");
-    } else {
-      toast.error("Failed to create booking. Please try again.");
-      console.error("Booking creation failed:", result.error);
+    } catch (error) {
+      console.error("Error submitting booking:", error);
+      toast.error("An error occurred while making your reservation.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -290,91 +269,74 @@ const NormalBookingForm: React.FC<NormalBookingFormProps> = ({
               </div>
             </div>
             
-            <div className="mt-3 flex">
-              <Button
-                type="button"
-                className="w-full"
-                onClick={handleCheckAvailability}
-                disabled={isCheckingAvailability}
-              >
-                {isCheckingAvailability ? "Checking..." : "Check Availability"}
-              </Button>
+            <div className="mt-2 text-center text-sm text-green-600">
+              ✓ Available for booking
+            </div>
+          </div>
+          
+          <div className="border-t pt-4 mt-4">
+            <div className="flex justify-between mb-2">
+              <span className="text-gray-600">
+                {formatCurrency(apartmentPrice)} DH x {nightsCount} nights
+              </span>
+              <span className="font-medium">
+                {formatCurrency(totalPrice)} DH
+              </span>
             </div>
             
-            {isDateRangeAvailable !==null && (
-              <div className={`mt-2 text-center text-sm ${isDateRangeAvailable ? 'text-green-600' : 'text-red-600'}`}>
-                {isDateRangeAvailable ? "✓ Available for booking" : "✗ Not available for the selected dates"}
-              </div>
-            )}
-          </div>
-          
-          {isDateRangeAvailable && (
-            <div className="border-t pt-4 mt-4">
-              <div className="flex justify-between mb-2">
-                <span className="text-gray-600">
-                  {formatCurrency(apartmentPrice)} DH x {nightsCount} nights
-                </span>
-                <span className="font-medium">
-                  {formatCurrency(totalPrice)} DH
-                </span>
-              </div>
-              
-              <div className="flex justify-between pt-3 border-t font-semibold">
-                <span>Total</span>
-                <span>{formatCurrency(totalPrice)} DH</span>
-              </div>
+            <div className="flex justify-between pt-3 border-t font-semibold">
+              <span>Total</span>
+              <span>{formatCurrency(totalPrice)} DH</span>
             </div>
-          )}
+          </div>
+          
+          <div className="space-y-4 pt-2">
+            <div>
+              <label htmlFor="normalName" className="text-sm font-medium text-gray-700">
+                Full Name
+              </label>
+              <Input
+                id="normalName"
+                value={userName}
+                onChange={(e) => setUserName(e.target.value)}
+                placeholder="Enter your full name"
+              />
+            </div>
+            
+            <div>
+              <label htmlFor="normalEmail" className="text-sm font-medium text-gray-700">
+                Email
+              </label>
+              <Input
+                id="normalEmail"
+                type="email"
+                value={userEmail}
+                onChange={(e) => setUserEmail(e.target.value)}
+                placeholder="Enter your email"
+              />
+            </div>
+            
+            <div>
+              <label htmlFor="normalPhone" className="text-sm font-medium text-gray-700">
+                Phone Number
+              </label>
+              <Input
+                id="normalPhone"
+                value={userPhone}
+                onChange={(e) => setUserPhone(e.target.value)}
+                placeholder="Enter your phone number"
+              />
+            </div>
+            
+            <Button 
+              type="submit" 
+              className="w-full"
+              disabled={isLoading || !startDate || !endDate || !userName || !userEmail || !userPhone}
+            >
+              {isLoading ? "Processing..." : "Reserve"}
+            </Button>
+          </div>
         </>
-      )}
-      
-      {isDateRangeAvailable && (
-        <div className="space-y-4 pt-2">
-          <div>
-            <label htmlFor="normalName" className="text-sm font-medium text-gray-700">
-              Full Name
-            </label>
-            <Input
-              id="normalName"
-              value={userName}
-              onChange={(e) => setUserName(e.target.value)}
-              placeholder="Enter your full name"
-            />
-          </div>
-          
-          <div>
-            <label htmlFor="normalEmail" className="text-sm font-medium text-gray-700">
-              Email
-            </label>
-            <Input
-              id="normalEmail"
-              type="email"
-              value={userEmail}
-              onChange={(e) => setUserEmail(e.target.value)}
-              placeholder="Enter your email"
-            />
-          </div>
-          
-          <div>
-            <label htmlFor="normalPhone" className="text-sm font-medium text-gray-700">
-              Phone Number
-            </label>
-            <Input
-              id="normalPhone"
-              value={userPhone}
-              onChange={(e) => setUserPhone(e.target.value)}
-              placeholder="Enter your phone number"
-            />
-          </div>
-          
-          <Button 
-            type="submit" 
-            className="w-full"
-            disabled={!startDate || !endDate || !isDateRangeAvailable || !userName || !userEmail || !userPhone}
-          >
-            Reserve
-          </Button>
-        </div>
       )}
     </form>
   );
