@@ -5,17 +5,21 @@ import { supabase } from "@/integrations/supabase/client";
 export const useBookingAvailability = () => {
   const isNormalDateRangeAvailable = async (apartmentId: string, startDate: Date, endDate: Date): Promise<boolean> => {
     try {
-      // Fix the query to properly check for overlapping bookings
+      console.log("Checking availability for:", { apartmentId, startDate, endDate });
+      
+      // The correct way to check for overlapping ranges
       const { data, error } = await supabase
         .from('normal_bookings')
         .select('*')
         .eq('apartment_id', apartmentId)
-        .or(`start_date,lt.${endDate.toISOString()},end_date,gt.${startDate.toISOString()}`);
+        .or(`start_date.lte.${endDate.toISOString()},end_date.gte.${startDate.toISOString()}`);
       
       if (error) {
         console.error("Error checking date range availability:", error);
         throw error;
       }
+      
+      console.log("Overlapping bookings found:", data?.length || 0);
       
       // If there are any overlapping bookings, the date range is not available
       return data.length === 0;
@@ -27,6 +31,8 @@ export const useBookingAvailability = () => {
 
   const getBookedDatesForApartment = async (apartmentId: string): Promise<Date[]> => {
     try {
+      console.log("Fetching booked dates for apartment:", apartmentId);
+      
       const { data, error } = await supabase
         .from('normal_bookings')
         .select('start_date, end_date')
@@ -36,6 +42,8 @@ export const useBookingAvailability = () => {
         console.error("Error fetching booked dates:", error);
         throw error;
       }
+
+      console.log("Found booking records:", data?.length || 0);
 
       // Create an array of all booked dates (including dates between start and end)
       const bookedDates: Date[] = [];
@@ -52,6 +60,7 @@ export const useBookingAvailability = () => {
         }
       }
       
+      console.log("Total booked dates:", bookedDates.length);
       return bookedDates;
     } catch (error) {
       console.error("Error getting booked dates:", error);
@@ -67,6 +76,8 @@ export const useBookingAvailability = () => {
       const tomorrow = new Date();
       tomorrow.setDate(today.getDate() + 1);
       
+      console.log("Testing normal booking with dates:", { today, tomorrow });
+      
       // Check if the date range is available
       const isAvailable = await isNormalDateRangeAvailable(apartmentId, today, tomorrow);
       
@@ -76,31 +87,25 @@ export const useBookingAvailability = () => {
       }
       
       // Create a test booking
-      const testBooking = {
-        apartmentId,
-        userName: "Test User",
-        userEmail: "test@example.com",
-        userPhone: "+1234567890",
-        startDate: today,
-        endDate: tomorrow
-      };
-      
-      // This is a test function, so we need to create the booking
-      // but we don't have access to createNormalBooking here
-      // Instead, we'll manually create the booking in the database
       const { data, error } = await supabase
         .from('normal_bookings')
         .insert({
-          apartment_id: testBooking.apartmentId,
-          user_name: testBooking.userName,
-          user_email: testBooking.userEmail,
-          user_phone: testBooking.userPhone,
-          start_date: testBooking.startDate.toISOString(),
-          end_date: testBooking.endDate.toISOString()
+          apartment_id: apartmentId,
+          user_name: "Test User",
+          user_email: "test@example.com",
+          user_phone: "+1234567890",
+          start_date: today.toISOString(),
+          end_date: tomorrow.toISOString()
         })
         .select();
       
-      return error === null && data !== null;
+      if (error) {
+        console.error("Error creating test booking:", error);
+        return false;
+      }
+      
+      console.log("Test booking created successfully:", data);
+      return data !== null && data.length > 0;
     } catch (error) {
       console.error("Error testing normal booking:", error);
       return false;
