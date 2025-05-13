@@ -190,11 +190,11 @@ const NormalBookingForm: React.FC<NormalBookingFormProps> = ({
     <form onSubmit={handleSubmitNormalBooking} className="space-y-4">
       <div className="space-y-2">
         <label className="text-sm font-medium text-gray-700">
-          Select Dates
+          Séléctionnez votre réservation
         </label>
         <div className="text-xs text-gray-500 mb-2">
           {minNights && maxNights ? 
-            `Min: ${minNights} nights | Max: ${maxNights} nuitées` : 
+            `Min: ${minNights} nuitées | Max: ${maxNights} nuitées` : 
             minNights ? 
               `Min: ${minNights} nuitées` : 
               maxNights ? 

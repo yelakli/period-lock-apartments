@@ -113,7 +113,7 @@ const ApartmentCard: React.FC<ApartmentCardProps> = ({
           </div>
           <p className="text-gray-600 mb-4 line-clamp-2">{apartment.description}</p>
           <div className="flex justify-between items-center">
-            <span className="font-medium">{apartment.price} Dh per night</span>
+            <span className="font-medium">{apartment.price} Dh par nuitée</span>
             <div className="flex flex-col items-end">
               <span className={`px-2 py-1 text-xs font-medium rounded ${
                 apartment.bookingType === 'normal' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'
