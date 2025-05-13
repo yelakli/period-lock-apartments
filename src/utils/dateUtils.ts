@@ -1,9 +1,14 @@
 
 import { format } from "date-fns";
+import { fr } from 'date-fns/locale';
 
 // Date formatting utilities
 export const formatDisplayDate = (date: Date): string => {
   return format(date, "MMMM d, yyyy");
+};
+
+export const formatDisplayDateFr = (date: Date): string => {
+  return format(date, "d MMMM yyyy", { locale: fr });
 };
 
 export const formatISODate = (date: Date): string => {

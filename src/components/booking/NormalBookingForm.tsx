@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { format, differenceInDays, isSameDay } from "date-fns";
+import { fr } from 'date-fns/locale';
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -109,7 +110,7 @@ const NormalBookingForm: React.FC<NormalBookingFormProps> = ({
         }
         
         if (containsDisabledDate) {
-          toast.error("Your selected range includes already booked dates");
+          toast.error("Votre période sélectionnée inclut des dates déjà réservées");
           return;
         }
         
@@ -118,12 +119,12 @@ const NormalBookingForm: React.FC<NormalBookingFormProps> = ({
         
         // Check min/max night constraints
         if (minNights && nights < minNights) {
-          toast.error(`Minimum reservation ${minNights} nuitées`);
+          toast.error(`Minimum réservation ${minNights} nuitées`);
           return;
         }
         
         if (maxNights && nights > maxNights) {
-          toast.error(`Maximum reservation ${maxNights} nuitées`);
+          toast.error(`Maximum réservation ${maxNights} nuitées`);
           return;
         }
         
@@ -156,7 +157,7 @@ const NormalBookingForm: React.FC<NormalBookingFormProps> = ({
       });
       
       if (result.success) {
-        toast.success("Reservation effectuée avec succès!");
+        toast.success("Réservation effectuée avec succès!");
         
         // Update booked dates after successful booking
         const updatedBookedDates = [...bookedDates];
@@ -175,12 +176,12 @@ const NormalBookingForm: React.FC<NormalBookingFormProps> = ({
         
         navigate("/");
       } else {
-        toast.error("Failed to create booking. Please try again.");
+        toast.error("Échec de la création de la réservation. Veuillez réessayer.");
         console.error("Booking creation failed:", result.error);
       }
     } catch (error) {
       console.error("Error submitting booking:", error);
-      toast.error("An error occurred while making your reservation.");
+      toast.error("Une erreur s'est produite lors de votre réservation.");
     } finally {
       setIsLoading(false);
     }
@@ -214,19 +215,19 @@ const NormalBookingForm: React.FC<NormalBookingFormProps> = ({
               {startDate ? (
                 endDate ? (
                   <>
-                    {format(startDate, "MMM dd, yyyy")} - {format(endDate, "MMM dd, yyyy")}
+                    {format(startDate, "dd MMM yyyy", { locale: fr })} - {format(endDate, "dd MMM yyyy", { locale: fr })}
                   </>
                 ) : (
-                  format(startDate, "MMM dd, yyyy")
+                  format(startDate, "dd MMM yyyy", { locale: fr })
                 )
               ) : (
-                <span>Select dates</span>
+                <span>Sélectionnez des dates</span>
               )}
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-0">
             {isLoadingDates ? (
-              <div className="p-4 text-center">Loading available dates...</div>
+              <div className="p-4 text-center">Chargement des dates disponibles...</div>
             ) : (
               <Calendar
                 mode="single"
@@ -235,6 +236,7 @@ const NormalBookingForm: React.FC<NormalBookingFormProps> = ({
                 initialFocus
                 disabled={isDayDisabled}
                 className={cn("p-3 pointer-events-auto")}
+                locale={fr}
               />
             )}
             {startDate && !endDate && (
@@ -258,7 +260,7 @@ const NormalBookingForm: React.FC<NormalBookingFormProps> = ({
               <CalendarIcon className="h-5 w-5 text-blue-500 mt-0.5" />
               <div className="flex-1">
                 <p className="font-medium text-blue-700">
-                  {format(startDate, "MMMM dd")} - {format(endDate, "MMMM dd, yyyy")}
+                  {format(startDate, "d MMMM", { locale: fr })} - {format(endDate, "d MMMM yyyy", { locale: fr })}
                 </p>
                 <p className="text-sm text-blue-600">
                   {nightsCount} nuitées
@@ -318,7 +320,7 @@ const NormalBookingForm: React.FC<NormalBookingFormProps> = ({
               className="w-full"
               disabled={isLoading || !startDate || !endDate || !userName || !userPhone}
             >
-              {isLoading ? "Processing..." : "Reserve"}
+              {isLoading ? "Traitement..." : "Réserver"}
             </Button>
           </div>
         </>
