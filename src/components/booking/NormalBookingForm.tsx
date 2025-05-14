@@ -251,10 +251,9 @@ const NormalBookingForm: React.FC<NormalBookingFormProps> = ({
             Note: Si vous ne pouvez pas sélectionner une date celà veut dire qu'elle est déjà réservée.<br></br>
             Veuillez sélectionnez la date d'entrée et la date de sortie.<br></br>
             5 nuitées = 6 jours (ex : Du 01/07/2025 au 06/07/2025)<br></br>
-            <p style="direction: rtl; color: black;">ملاحظة : إذا لم تتمكن من اختيار تاريخ، فهذا يعني أنه تم حجزه مسبقا<br></br>
+            >ملاحظة : إذا لم تتمكن من اختيار تاريخ، فهذا يعني أنه تم حجزه مسبقا<br></br>
              يرجى اختيار تاريخ الدخول وتاريخ الخروج<br></br>
               nuitées 5 = أيام 6 (مثال: من 01/07/2025 إلى 06/07/2025)
-            </p>
           </div>
         )}
       </div>
