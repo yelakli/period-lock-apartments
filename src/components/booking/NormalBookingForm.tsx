@@ -248,7 +248,12 @@ const NormalBookingForm: React.FC<NormalBookingFormProps> = ({
         </Popover>
         {bookedDates.length > 0 && (
           <div className="text-xs text-amber-600">
-            Note: Le calendrier montre uniquement les dates disponibles. Les dates réservées sont grisées.
+            Note: Si vous ne pouvez pas sélectionner une date celà veut dire qu'elle est déjà réservée.
+            Veuillez sélectionnez la date d'entrée et la date de sortie.
+            5 nuitées = 6 jours (ex : Du 01/07/2025 au 06/07/2025)
+            ملاحظة : إذا لم تتمكن من اختيار تاريخ، فهذا يعني أنه تم حجزه مسبقا
+             يرجى اختيار تاريخ الدخول وتاريخ الخروج
+              nuitées 5 = 6 أيام (مثال: من 01/07/2025 إلى 06/07/2025)
           </div>
         )}
       </div>
