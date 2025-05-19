@@ -31,6 +31,7 @@ export const useApartmentManagement = (
           bookingType: apt.booking_type as "period" | "normal",
           minNights: apt.min_nights,
           maxNights: apt.max_nights,
+          disableBookedDates: apt.disable_booked_dates,
           images: apt.images || []
         })));
       }
@@ -60,7 +61,8 @@ export const useApartmentManagement = (
           images: apartment.images,
           booking_type: apartment.bookingType,
           min_nights: apartment.minNights,
-          max_nights: apartment.maxNights
+          max_nights: apartment.maxNights,
+          disable_booked_dates: apartment.disableBookedDates
         })
         .select();
       
@@ -77,6 +79,7 @@ export const useApartmentManagement = (
           bookingType: data[0].booking_type as "period" | "normal",
           minNights: data[0].min_nights,
           maxNights: data[0].max_nights,
+          disableBookedDates: data[0].disable_booked_dates,
           images: data[0].images || []
         };
         setApartments([...apartments, newApartment]);
@@ -107,7 +110,8 @@ export const useApartmentManagement = (
           images: apartment.images,
           booking_type: apartment.bookingType,
           min_nights: apartment.minNights,
-          max_nights: apartment.maxNights
+          max_nights: apartment.maxNights,
+          disable_booked_dates: apartment.disableBookedDates
         })
         .eq('id', apartment.id);
       

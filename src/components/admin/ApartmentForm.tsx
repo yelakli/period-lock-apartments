@@ -14,6 +14,7 @@ import {
   RadioGroup,
   RadioGroupItem,
 } from "@/components/ui/radio-group";
+import { Switch } from "@/components/ui/switch";
 import { Apartment } from "@/types";
 
 interface ApartmentFormProps {
@@ -27,6 +28,7 @@ interface ApartmentFormProps {
     bookingType: "period" | "normal";
     minNights?: number;
     maxNights?: number;
+    disableBookedDates?: boolean;
   };
   setApartmentForm: React.Dispatch<React.SetStateAction<{
     name: string;
@@ -37,6 +39,7 @@ interface ApartmentFormProps {
     bookingType: "period" | "normal";
     minNights?: number | undefined;
     maxNights?: number | undefined;
+    disableBookedDates?: boolean | undefined;
   }>>;
   onClose: () => void;
   onSubmit: () => void;
@@ -130,40 +133,58 @@ const ApartmentForm: React.FC<ApartmentFormProps> = ({
         </div>
         
         {apartmentForm.bookingType === "normal" && (
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label htmlFor={`${isEditing ? 'edit-' : ''}minNights`} className="text-sm font-medium text-gray-700 mb-1 block">
-                Minimum Nights
-              </label>
-              <Input
-                id={`${isEditing ? 'edit-' : ''}minNights`}
-                type="number"
-                value={apartmentForm.minNights ?? ""}
-                onChange={(e) => setApartmentForm({ 
-                  ...apartmentForm, 
-                  minNights: e.target.value ? parseInt(e.target.value) : undefined 
-                })}
-                placeholder="Min nights"
-                min="1"
-              />
+          <>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label htmlFor={`${isEditing ? 'edit-' : ''}minNights`} className="text-sm font-medium text-gray-700 mb-1 block">
+                  Minimum Nights
+                </label>
+                <Input
+                  id={`${isEditing ? 'edit-' : ''}minNights`}
+                  type="number"
+                  value={apartmentForm.minNights ?? ""}
+                  onChange={(e) => setApartmentForm({ 
+                    ...apartmentForm, 
+                    minNights: e.target.value ? parseInt(e.target.value) : undefined 
+                  })}
+                  placeholder="Min nights"
+                  min="1"
+                />
+              </div>
+              <div>
+                <label htmlFor={`${isEditing ? 'edit-' : ''}maxNights`} className="text-sm font-medium text-gray-700 mb-1 block">
+                  Maximum Nights
+                </label>
+                <Input
+                  id={`${isEditing ? 'edit-' : ''}maxNights`}
+                  type="number"
+                  value={apartmentForm.maxNights ?? ""}
+                  onChange={(e) => setApartmentForm({ 
+                    ...apartmentForm, 
+                    maxNights: e.target.value ? parseInt(e.target.value) : undefined 
+                  })}
+                  placeholder="Max nights"
+                  min="1"
+                />
+              </div>
             </div>
-            <div>
-              <label htmlFor={`${isEditing ? 'edit-' : ''}maxNights`} className="text-sm font-medium text-gray-700 mb-1 block">
-                Maximum Nights
-              </label>
-              <Input
-                id={`${isEditing ? 'edit-' : ''}maxNights`}
-                type="number"
-                value={apartmentForm.maxNights ?? ""}
-                onChange={(e) => setApartmentForm({ 
-                  ...apartmentForm, 
-                  maxNights: e.target.value ? parseInt(e.target.value) : undefined 
-                })}
-                placeholder="Max nights"
-                min="1"
+            
+            <div className="flex items-center space-x-2">
+              <Switch 
+                id={`${isEditing ? 'edit-' : ''}disableBookedDates`}
+                checked={apartmentForm.disableBookedDates ?? true}
+                onCheckedChange={(checked) => 
+                  setApartmentForm({ ...apartmentForm, disableBookedDates: checked })
+                }
               />
+              <label 
+                htmlFor={`${isEditing ? 'edit-' : ''}disableBookedDates`}
+                className="text-sm font-medium text-gray-700"
+              >
+                Disable dates that are already booked in the calendar
+              </label>
             </div>
-          </div>
+          </>
         )}
         
         <div>

@@ -39,6 +39,7 @@ const ApartmentsTab: React.FC<ApartmentsTabProps> = ({
     bookingType: "period" as "period" | "normal",
     minNights: undefined as number | undefined,
     maxNights: undefined as number | undefined,
+    disableBookedDates: true,
   });
 
   const handleAddApartment = () => {
@@ -65,6 +66,7 @@ const ApartmentsTab: React.FC<ApartmentsTabProps> = ({
       bookingType: apartmentForm.bookingType,
       minNights: apartmentForm.bookingType === "normal" ? apartmentForm.minNights : undefined,
       maxNights: apartmentForm.bookingType === "normal" ? apartmentForm.maxNights : undefined,
+      disableBookedDates: apartmentForm.bookingType === "normal" ? apartmentForm.disableBookedDates : undefined,
     });
     
     setApartmentForm({
@@ -76,6 +78,7 @@ const ApartmentsTab: React.FC<ApartmentsTabProps> = ({
       bookingType: "period",
       minNights: undefined,
       maxNights: undefined,
+      disableBookedDates: true,
     });
     
     setIsAddingApartment(false);
@@ -107,6 +110,7 @@ const ApartmentsTab: React.FC<ApartmentsTabProps> = ({
         bookingType: apartmentForm.bookingType,
         minNights: apartmentForm.bookingType === "normal" ? apartmentForm.minNights : undefined,
         maxNights: apartmentForm.bookingType === "normal" ? apartmentForm.maxNights : undefined,
+        disableBookedDates: apartmentForm.bookingType === "normal" ? apartmentForm.disableBookedDates : undefined,
       });
       
       setEditingApartment(null);
@@ -124,6 +128,7 @@ const ApartmentsTab: React.FC<ApartmentsTabProps> = ({
       bookingType: apartment.bookingType || "period",
       minNights: apartment.minNights,
       maxNights: apartment.maxNights,
+      disableBookedDates: apartment.disableBookedDates !== undefined ? apartment.disableBookedDates : true,
     });
   };
 

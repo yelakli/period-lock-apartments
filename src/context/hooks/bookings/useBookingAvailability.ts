@@ -7,6 +7,24 @@ export const useBookingAvailability = () => {
     try {
       console.log("Checking availability for:", { apartmentId, startDate, endDate });
       
+      // First, check if this apartment allows booking on already booked dates
+      const { data: apartment, error: apartmentError } = await supabase
+        .from('apartments')
+        .select('disable_booked_dates')
+        .eq('id', apartmentId)
+        .single();
+      
+      if (apartmentError) {
+        console.error("Error fetching apartment details:", apartmentError);
+        throw apartmentError;
+      }
+
+      // If the apartment doesn't disable booked dates, we can allow any booking
+      if (apartment && apartment.disable_booked_dates === false) {
+        console.log("This apartment allows booking on already booked dates");
+        return true;
+      }
+      
       // The correct way to check for overlapping ranges
       const { data, error } = await supabase
         .from('normal_bookings')
@@ -32,6 +50,24 @@ export const useBookingAvailability = () => {
   const getBookedDatesForApartment = async (apartmentId: string): Promise<Date[]> => {
     try {
       console.log("Fetching booked dates for apartment:", apartmentId);
+      
+      // First, check if this apartment allows booking on already booked dates
+      const { data: apartment, error: apartmentError } = await supabase
+        .from('apartments')
+        .select('disable_booked_dates')
+        .eq('id', apartmentId)
+        .single();
+      
+      if (apartmentError) {
+        console.error("Error fetching apartment details:", apartmentError);
+        throw apartmentError;
+      }
+
+      // If the apartment doesn't disable booked dates, return an empty array
+      if (apartment && apartment.disable_booked_dates === false) {
+        console.log("This apartment allows booking on already booked dates, not disabling any dates");
+        return [];
+      }
       
       const { data, error } = await supabase
         .from('normal_bookings')
