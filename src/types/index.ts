@@ -11,7 +11,7 @@ export interface Apartment {
   bookingType: "period" | "normal";
   minNights?: number;
   maxNights?: number;
-  disableBookedDates?: boolean; // Added this property
+  disableBookedDates?: boolean;
 }
 
 export interface BookingPeriod {

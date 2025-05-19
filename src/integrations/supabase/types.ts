@@ -13,6 +13,7 @@ export type Database = {
         Row: {
           booking_type: string
           description: string
+          disable_booked_dates: boolean | null
           id: string
           images: string[] | null
           location: string
@@ -24,6 +25,7 @@ export type Database = {
         Insert: {
           booking_type?: string
           description: string
+          disable_booked_dates?: boolean | null
           id?: string
           images?: string[] | null
           location: string
@@ -35,6 +37,7 @@ export type Database = {
         Update: {
           booking_type?: string
           description?: string
+          disable_booked_dates?: boolean | null
           id?: string
           images?: string[] | null
           location?: string
