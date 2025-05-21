@@ -34,13 +34,14 @@ const Navbar: React.FC = () => {
               </Link>
             )}
           </nav>
-
+          
           <div className="flex items-center space-x-3">
+            {isAdminLoggedIn ? (
             <div className="px-3 py-1 bg-gray-100 rounded-full text-sm text-gray-700 flex items-center">
               <User className="mr-1 h-3.5 w-3.5" />
               {userType === "admin" ? "Admin" : "User"}
             </div>
-            
+            ):(<User className="mr-1 h-3.5 w-3.5" />)}
             {isAdminLoggedIn ? (
               <Button
                 variant="outline"
@@ -57,7 +58,7 @@ const Navbar: React.FC = () => {
                   variant="outline"
                   size="sm"
                 >
-                  Admin Login
+                  Login
                 </Button>
               </Link>
             )}
