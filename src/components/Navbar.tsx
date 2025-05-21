@@ -21,7 +21,6 @@ const Navbar: React.FC = () => {
           <div className="flex items-center">
             <Link to="/" className="flex items-center space-x-2">
             <img className="logoMobile" id="" typeof="foaf:Image" src="https://adherents.aosrsm.ma/images/avatar-01.png" height="100" width="100" alt="CRSM logo"/>
-              <span className="font-medium text-lg text-gray-900">AOSRSM</span>
             </Link>
           </div>
 
