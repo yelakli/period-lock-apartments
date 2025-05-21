@@ -31,15 +31,15 @@ const Index = () => {
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
             Association des Oeuvres Sociales des Fonctionnaires de la Région Souss Massa
           </p>
-          <p className="text-left">La saison estivale de l'année 2025 commence du 22 juin au 15 septembre 2025.</p>
-          <p className="text-left">Le pourcentage de contribution du participant au processus de camping d'été a été déterminé par :</p>
-          <p className="text-left">- 40 % pour les salariés classés aux grades 9 et inférieurs, avec cotisation de l'association plafonnée à 700Dh par jour.</p>
-          <p className="text-left">- 50 % pour les salariés classés aux grades 10 et supérieurs, avec cotisation de l'association plafonnée à 600Dh par jour.</p>
+          <p className="text-left">La saison estivale de l'année 2025 commence du 21 juin au 15 septembre 2025.</p>
+          <p className="text-left">Le pourcentage de contribution du participant au processus d'estivage a été déterminé par :</p>
+          <p className="text-left">- 25 % pour les salariés classés aux grades 9 et inférieurs, avec cotisation de l'association plafonnée à 700Dh par jour.</p>
+          <p className="text-left">- 35 % pour les salariés classés aux grades 10 et supérieurs, avec cotisation de l'association plafonnée à 600Dh par jour.</p>
 
           <p className="text-left">Très important:</p>
-          <p className="text-left">- Toute réservation peut être de 4 à 5 Jours consécutifs (non séparés) pour Tafoult, Amlal, Essayadine, Essaouira, Marrakech et Martil.</p>
-          <p className="text-left">- Les réservations à "CLUB EVASION" et "Résidence Beau Rivage" ne peuvent pas être inférieure à 5 jours consécutifs.</p>
-          <p className="text-left">- Il n'est pas possible de réserver plus d'un appartement.</p>
+          <p className="text-left">- Toute réservation doit être de nuitées consécutives (non séparés).</p>
+          <p className="text-left">- Les réservations à "Résidence Beau Rivage" ne peuvent pas être inférieure à 5 jours consécutifs et définie en périodes définies.</p>
+          <p className="text-left">- Veuillez ne pas réserver plus d'un appartement.</p>
           <p className="text-left">- La réservation n'est considérée comme définitive que si la contribution du participant est intégralement réglée.</p>
         </div>
 
