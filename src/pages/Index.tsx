@@ -38,7 +38,7 @@ const Index = () => {
 
           <p className="text-left">Très important:</p>
           <p className="text-left">- Toute réservation doit être de nuitées consécutives (non séparés).</p>
-          <p className="text-left">- Les réservations à "Résidence Beau Rivage" ne peuvent pas être inférieure à 5 jours consécutifs et définie en périodes définies.</p>
+          <p className="text-left">- Les réservations à "Résidence Beau Rivage" ne peuvent pas être inférieure à 5 jours consécutifs et définie en périodes.</p>
           <p className="text-left">- Veuillez ne pas réserver plus d'un appartement.</p>
           <p className="text-left">- La réservation n'est considérée comme définitive que si la contribution du participant est intégralement réglée.</p>
         </div>
