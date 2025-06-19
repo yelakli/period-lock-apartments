@@ -113,11 +113,7 @@ const Index = () => {
                     </CardContent>
                     <CardFooter className="flex items-center justify-between border-t pt-4">
                       <div className="text-lg font-semibold text-gray-900">
-                        <p className="text-sm text-gray-500 mt-2">
-                          {apartment.name === 'Appartement AL-RIMAL'
-                            ? `Juillet : 500 Dh/nuitée Aout : 600 Dh/nuitée` 
-                            : formatCurrency(apartment.price)}
-                        </p>
+                        {formatCurrency(apartment.price)} <span className="text-sm font-normal text-gray-500">Dh/nuitée</span>
                       </div>
                      {apartment.bookingType === 'normal' && apartment.minNights && apartment.maxNights && (
                         <p className="text-sm text-gray-500 mt-2">
