@@ -114,16 +114,16 @@ const Index = () => {
                     <CardFooter className="flex items-center justify-between border-t pt-4">
                       <div className="text-lg font-semibold text-gray-900">
                         {
-  apartment.name === 'Appartement AL-RIMAL'
-    ? 'Juillet : 500 Dh/nuitée - Aout : 600 Dh/nuitée'
-    : apartment.name === 'Appartement CENTRE-VILLE'
-      ? 'Promo : 450 Dh/nuitée'
-      : (
-          <>
-            {formatCurrency(apartment.price)} <span className="text-sm font-normal text-gray-500">Dh/nuitée</span>
-          </>
-        )
-}
+                          apartment.name === 'Appartement AL-RIMAL'
+                            ? 'Juillet : 500 Dh/nuitée - Aout : 600 Dh/nuitée'
+                            : apartment.name === 'Villa Club évasion'
+                              ? '01-15 Juillet: 1000 Dh/nuitée -- 15-31 Juillet: 1100 Dh/nuitée -- Aout: 1250 Dh/nuitée -- Septembre: 850 Dh/nuitée'
+                              : (
+                                  <>
+                                    {formatCurrency(apartment.price)} <span className="text-sm font-normal text-gray-500">Dh/nuitée</span>
+                                  </>
+                                )
+                        }
                       </div>
                      {apartment.bookingType === 'normal' && apartment.minNights && apartment.maxNights && (
                         <p className="text-sm text-gray-500 mt-2">
