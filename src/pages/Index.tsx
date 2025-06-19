@@ -31,7 +31,7 @@ const Index = () => {
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
             Association des Oeuvres Sociales des Fonctionnaires de la Région Souss Massa
           </p>
-          <p className="text-left">La saison estivale de l'année 2025 commence du 01 Juillet au 15 septembre 2025.</p>
+          <p className="text-left">La saison estivale de l'année 2025 commence du 01 Juillet au 18 septembre 2025.</p>
           <p className="text-left">Le pourcentage de contribution du participant au processus d'estivage a été déterminé par :</p>
           <p className="text-left">- 25 % pour les salariés classés aux grades 9 et inférieurs, avec cotisation de l'association plafonnée à 700Dh par jour.</p>
           <p className="text-left">- 35 % pour les salariés classés aux grades 10 et supérieurs, avec cotisation de l'association plafonnée à 600Dh par jour.</p>
