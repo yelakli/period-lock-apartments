@@ -64,7 +64,7 @@ export const useBookingsData = (
         startDate: format(new Date(period.startDate), "MMM dd, yyyy"),
         endDate: format(new Date(period.endDate), "MMM dd, yyyy"),
         nights: nights,
-        bookingDate: format(new Date(booking.bookingDate), "MMM dd, yyyy"),
+        bookingDate: format(new Date(booking.bookingDate), "MMM dd, yyyy HH:mm:ss"),
         totalAmount: apartment.price * nights,
       };
     }).filter(Boolean);
@@ -92,7 +92,7 @@ export const useBookingsData = (
         startDate: format(new Date(booking.startDate), "MMM dd, yyyy"),
         endDate: format(new Date(booking.endDate), "MMM dd, yyyy"),
         nights: nights,
-        bookingDate: format(new Date(booking.bookingDate), "MMM dd, yyyy"),
+        bookingDate: format(new Date(booking.bookingDate), "MMM dd, yyyy HH:mm:ss"),
         totalAmount: apartment.price * nights,
       };
     }).filter(Boolean);
