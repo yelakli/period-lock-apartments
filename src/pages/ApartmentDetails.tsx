@@ -52,7 +52,18 @@ const ApartmentDetails = () => {
             <Card>
               <CardContent className="pt-6">
                 <div className="flex items-baseline justify-between mb-4">
-                  <div className="text-2xl font-semibold">{formatCurrency(apartment.price)} DH</div>
+                  <div className="text-2xl font-semibold">
+                    {
+                                            apartment.name === 'Appartement AL-RIMAL'
+                                              ? 'Juillet : 500 Dh/nuitée - Aout : 600 Dh/nuitée'
+                                              : apartment.name === 'Villa Club évasion'
+                                                ? '01-15 Juillet: 1000 Dh/nuitée -- 15-31 Juillet: 1100 Dh/nuitée -- Aout: 1250 Dh/nuitée -- Septembre: 850 Dh/nuitée'
+                                                : (
+                                                    <>
+                                                      {formatCurrency(apartment.price)}
+                                                    </>
+                                                  )
+                                          }</div>
                   <div className="text-sm text-gray-500">par nuitée</div>
                 </div>
                 <div className="flex items-baseline justify-between mb-4">
