@@ -46,7 +46,10 @@ const PriceSummary: React.FC<PriceSummaryProps> = ({
             Vous avez sélectionné {nightsCount} nuitées à réserver.
           </span>
         </div>
-        
+        <div className="flex justify-between pt-3 border-t font-semibold">
+          <span></span>
+          <span></span>
+        </div>
         
       </div>
     </>
@@ -54,3 +57,8 @@ const PriceSummary: React.FC<PriceSummaryProps> = ({
 };
 
 export default PriceSummary;
+
+        
+       
+       
+      
