@@ -44,6 +44,13 @@ const PeriodBookingForm: React.FC<PeriodBookingFormProps> = ({
       return;
     }
     
+    console.log("Submitting period booking with data:", {
+      periodId: selectedPeriodId,
+      apartmentId: apartmentId,
+      userName,
+      userPhone
+    });
+    
     setIsLoading(true);
     
     try {
@@ -116,6 +123,7 @@ const PeriodBookingForm: React.FC<PeriodBookingFormProps> = ({
         isLoading={isLoading}
         onSubmit={handleSubmitPeriodBooking}
         isFormValid={isFormValid}
+        asFormWrapper={false}
       />
     </form>
   );

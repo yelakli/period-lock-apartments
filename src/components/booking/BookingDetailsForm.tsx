@@ -1,7 +1,8 @@
 
 import React from "react";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 interface BookingDetailsFormProps {
   userName: string;
@@ -9,8 +10,9 @@ interface BookingDetailsFormProps {
   setUserName: (name: string) => void;
   setUserPhone: (phone: string) => void;
   isLoading: boolean;
-  onSubmit: (e: React.FormEvent) => void;
+  onSubmit?: (e: React.FormEvent) => void;
   isFormValid: boolean;
+  asFormWrapper?: boolean; // New prop to control whether to wrap in form
 }
 
 const BookingDetailsForm: React.FC<BookingDetailsFormProps> = ({
@@ -21,42 +23,61 @@ const BookingDetailsForm: React.FC<BookingDetailsFormProps> = ({
   isLoading,
   onSubmit,
   isFormValid,
+  asFormWrapper = true
 }) => {
-  return (
-    <form onSubmit={onSubmit} className="space-y-4">
-      <div>
-        <label htmlFor="normalName" className="text-sm font-medium text-gray-700">
-          Nom et Prénom
-        </label>
-        <Input
-          id="normalName"
-          value={userName}
-          onChange={(e) => setUserName(e.target.value)}
-          placeholder="Entrez votre nom et prénom"
-        />
+  const formContent = (
+    <>
+      <div className="space-y-4">
+        <div>
+          <Label htmlFor="userName" className="text-sm font-medium text-gray-700">
+            Nom complet *
+          </Label>
+          <Input
+            id="userName"
+            type="text"
+            value={userName}
+            onChange={(e) => setUserName(e.target.value)}
+            placeholder="Entrez votre nom complet"
+            required
+            className="mt-1"
+          />
+        </div>
+        
+        <div>
+          <Label htmlFor="userPhone" className="text-sm font-medium text-gray-700">
+            Numéro de téléphone *
+          </Label>
+          <Input
+            id="userPhone"
+            type="tel"
+            value={userPhone}
+            onChange={(e) => setUserPhone(e.target.value)}
+            placeholder="Entrez votre numéro de téléphone"
+            required
+            className="mt-1"
+          />
+        </div>
       </div>
       
-      <div>
-        <label htmlFor="normalPhone" className="text-sm font-medium text-gray-700">
-          Numéro de Téléphone
-        </label>
-        <Input
-          id="normalPhone"
-          value={userPhone}
-          onChange={(e) => setUserPhone(e.target.value)}
-          placeholder="Entrez votre numéro de téléphone"
-        />
-      </div>
-      
-      <Button 
-        type="submit" 
-        className="w-full"
-        disabled={isLoading || !isFormValid}
+      <Button
+        type="submit"
+        disabled={!isFormValid || isLoading}
+        className="w-full mt-6"
       >
-        {isLoading ? "Traitement..." : "Réserver"}
+        {isLoading ? "Réservation en cours..." : "Confirmer la réservation"}
       </Button>
-    </form>
+    </>
   );
+
+  if (asFormWrapper && onSubmit) {
+    return (
+      <form onSubmit={onSubmit} className="space-y-4">
+        {formContent}
+      </form>
+    );
+  }
+
+  return <div className="space-y-4">{formContent}</div>;
 };
 
 export default BookingDetailsForm;
