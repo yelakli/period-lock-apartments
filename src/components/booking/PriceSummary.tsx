@@ -42,23 +42,21 @@ const PriceSummary: React.FC<PriceSummaryProps> = ({
       
       <div className="border-t pt-4 mt-4">
         <div className="flex justify-between mb-2">
+          <span className="text-gray-600">
+            {formatCurrency(apartmentPrice)} DH x {nightsCount} nuitées
+          </span>
           <span className="font-medium">
-            Vous avez sélectionné {nightsCount} nuitées à réserver.
+            {formatCurrency(totalPrice)} DH
           </span>
         </div>
-        <div className="flex justify-between pt-3 border-t font-semibold">
-          <span></span>
-          <span></span>
-        </div>
         
+        <div className="flex justify-between pt-3 border-t font-semibold">
+          <span>Total</span>
+          <span>{formatCurrency(totalPrice)} DH</span>
+        </div>
       </div>
     </>
   );
 };
 
 export default PriceSummary;
-
-        
-       
-       
-      
