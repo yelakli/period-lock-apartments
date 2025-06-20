@@ -54,7 +54,7 @@ const ApartmentDetails = () => {
                 <div className="flex items-baseline justify-between mb-4">
                   <div className="text-2xl font-semibold">{formatCurrency(apartment.price)} DH</div>
                   <div className="text-sm text-gray-500">par nuitée</div>
-                  <div className="text-sm text-gray-500">N.B : Le prix de la nuitée peut varier selon la période de réservation. Voir la description de l'appartement pour plus de détail.</div>
+                  <div className="text-2xl font-semibold">N.B : Le prix de la nuitée peut varier selon la période de réservation. Voir la description de l'appartement pour plus de détail.</div>
                 </div>
                 
                 {/* Period Booking Form */}
