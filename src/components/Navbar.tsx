@@ -19,7 +19,7 @@ const Navbar: React.FC = () => {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
-            <Link to="/" className="flex items-center space-x-2">
+            <Link to="http://aosrsm.ma" className="flex items-center space-x-2">
             <img className="logoMobile" id="" typeof="foaf:Image" src="https://adherents.aosrsm.ma/images/avatar-01.png" height="100" width="100" alt="CRSM logo"/>
             </Link>
           </div>
