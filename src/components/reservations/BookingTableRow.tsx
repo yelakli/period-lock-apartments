@@ -13,6 +13,7 @@ interface BookingRowProps {
   startDate: string;
   endDate: string;
   nights: number;
+  bookingDate: string;
   totalAmount: number;
 }
 
@@ -26,6 +27,7 @@ const BookingTableRow: React.FC<BookingRowProps> = ({
   startDate,
   endDate,
   nights,
+  bookingDate,
   totalAmount,
 }) => {
   return (
@@ -46,6 +48,7 @@ const BookingTableRow: React.FC<BookingRowProps> = ({
       <TableCell>{startDate}</TableCell>
       <TableCell>{endDate}</TableCell>
       <TableCell>{nights}</TableCell>
+      <TableCell className="text-sm text-muted-foreground">{bookingDate}</TableCell>
       <TableCell className="text-right font-medium">{totalAmount} Dh</TableCell>
     </TableRow>
   );

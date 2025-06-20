@@ -65,13 +65,14 @@ const BookingsTable: React.FC<BookingsTableProps> = ({ bookingsData, type }) => 
               <TableHead>Check-in</TableHead>
               <TableHead>Check-out</TableHead>
               <TableHead>Nights</TableHead>
+              <TableHead>Booking Date</TableHead>
               <TableHead className="text-right">Total</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {bookingsData.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="h-24 text-center">
+                <TableCell colSpan={8} className="h-24 text-center">
                   No {type} reservations found
                 </TableCell>
               </TableRow>
@@ -88,6 +89,7 @@ const BookingsTable: React.FC<BookingsTableProps> = ({ bookingsData, type }) => 
                   startDate={booking.startDate}
                   endDate={booking.endDate}
                   nights={booking.nights}
+                  bookingDate={booking.bookingDate}
                   totalAmount={booking.totalAmount}
                 />
               ))
