@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Booking, Apartment, BookingPeriod, NormalBooking } from "@/types";
+import { useBooking } from "@/context/BookingContext";
 import BookingsSearch from "./BookingsSearch";
 import ExportMenu from "./ExportMenu";
 import BookingsTable from "./BookingsTable";
@@ -23,6 +24,13 @@ const ReservationsTable: React.FC<ReservationsTableProps> = ({
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState<"period" | "normal">("period");
+  
+  const { 
+    deleteBooking, 
+    deleteNormalBooking, 
+    updateBooking, 
+    updateNormalBooking 
+  } = useBooking();
 
   // Use custom hooks to manage data and export functionality
   const { periodBookingsData, normalBookingsData } = useBookingsData(
@@ -76,7 +84,9 @@ const ReservationsTable: React.FC<ReservationsTableProps> = ({
         <TabsContent value="period">
           <BookingsTable 
             bookingsData={periodBookingsData} 
-            type="period" 
+            type="period"
+            onDelete={deleteBooking}
+            onUpdate={updateBooking}
           />
         </TabsContent>
         
@@ -84,7 +94,9 @@ const ReservationsTable: React.FC<ReservationsTableProps> = ({
         <TabsContent value="normal">
           <BookingsTable 
             bookingsData={normalBookingsData} 
-            type="normal" 
+            type="normal"
+            onDelete={deleteNormalBooking}
+            onUpdate={updateNormalBooking}
           />
         </TabsContent>
       </Tabs>

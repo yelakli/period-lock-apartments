@@ -4,6 +4,7 @@ import { useCreateBooking } from "./bookings/useCreateBooking";
 import { useCreateNormalBooking } from "./bookings/useCreateNormalBooking";
 import { useFetchBookings } from "./bookings/useFetchBookings";
 import { useBookingAvailability } from "./bookings/useBookingAvailability";
+import { useBookingActions } from "./bookings/useBookingActions";
 
 export const useBookingManagement = (
   bookings: Booking[],
@@ -37,12 +38,28 @@ export const useBookingManagement = (
     testNormalBooking
   } = useBookingAvailability();
 
+  const {
+    deleteBooking,
+    deleteNormalBooking,
+    updateBooking,
+    updateNormalBooking
+  } = useBookingActions(
+    bookings,
+    setBookings,
+    normalBookings,
+    setNormalBookings
+  );
+
   // Return all the methods combined
   return {
     fetchBookings,
     fetchNormalBookings,
     createBooking,
     createNormalBooking,
+    deleteBooking,
+    deleteNormalBooking,
+    updateBooking,
+    updateNormalBooking,
     isNormalDateRangeAvailable,
     getBookedDatesForApartment,
     testNormalBooking

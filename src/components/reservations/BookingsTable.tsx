@@ -29,11 +29,18 @@ interface BookingData {
 interface BookingsTableProps {
   bookingsData: BookingData[];
   type: "period" | "normal";
+  onDelete: (id: string) => Promise<{ success: boolean; error?: any }>;
+  onUpdate: (id: string, updates: any) => Promise<{ success: boolean; error?: any }>;
 }
 
 const ITEMS_PER_PAGE = 5;
 
-const BookingsTable: React.FC<BookingsTableProps> = ({ bookingsData, type }) => {
+const BookingsTable: React.FC<BookingsTableProps> = ({ 
+  bookingsData, 
+  type, 
+  onDelete, 
+  onUpdate 
+}) => {
   const [currentPage, setCurrentPage] = useState(1);
 
   // Calculate pagination
@@ -67,12 +74,13 @@ const BookingsTable: React.FC<BookingsTableProps> = ({ bookingsData, type }) => 
               <TableHead>Nights</TableHead>
               <TableHead>Booking Date</TableHead>
               <TableHead className="text-right">Total</TableHead>
+              <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {bookingsData.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={8} className="h-24 text-center">
+                <TableCell colSpan={9} className="h-24 text-center">
                   No {type} reservations found
                 </TableCell>
               </TableRow>
@@ -91,6 +99,9 @@ const BookingsTable: React.FC<BookingsTableProps> = ({ bookingsData, type }) => 
                   nights={booking.nights}
                   bookingDate={booking.bookingDate}
                   totalAmount={booking.totalAmount}
+                  type={type}
+                  onDelete={onDelete}
+                  onUpdate={onUpdate}
                 />
               ))
             )}
